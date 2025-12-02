@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/leonida/Documents/automobile_claims/project_structure/mlruns/803388973159146705/7a6a93bc509e4a248cd71ef9fd8950e2/artifacts
+end_time: 1764689877061
+entry_point_name: ''
+experiment_id: '803388973159146705'
+lifecycle_stage: active
+run_id: 7a6a93bc509e4a248cd71ef9fd8950e2
+run_name: invincible-frog-571
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764689823670
+status: 4
+tags: []
+user_id: leonida

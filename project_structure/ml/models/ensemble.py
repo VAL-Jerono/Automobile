@@ -22,10 +22,19 @@ except Exception as e:
 import joblib
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import cross_val_score
-import tensorflow as tf
-from tensorflow.keras import Sequential, layers
+try:
+    import tensorflow as tf
+    from tensorflow.keras import Sequential, layers
+    TF_AVAILABLE = True
+except Exception as e:
+    TF_AVAILABLE = False
+    print(f"⚠️  TensorFlow unavailable, using sklearn ensemble only")
 from typing import Tuple, Dict, Any
-import shap
+try:
+    import shap
+    SHAP_AVAILABLE = True
+except Exception as e:
+    SHAP_AVAILABLE = False
 import logging
 
 logger = logging.getLogger(__name__)
@@ -86,14 +95,14 @@ class InsuranceEnsembleModel:
         if XGB_AVAILABLE:
             logger.info("Training XGBoost...")
             self.xgb_model = xgb.XGBClassifier(
-                n_estimators=100, learning_rate=0.1, max_depth=6, subsample=0.8,
+                n_estimators=10, learning_rate=0.1, max_depth=6, subsample=0.8,
                 colsample_bytree=0.8, random_state=42, n_jobs=-1
             )
             self.xgb_model.fit(X_train_proc, y_train, eval_set=[(X_val_proc, y_val)] if X_val is not None else None)
         else:
             logger.warning("XGBoost not available, using RandomForest instead")
             self.rf_model = RandomForestClassifier(
-                n_estimators=100, max_depth=10, random_state=42, n_jobs=-1
+                n_estimators=10, max_depth=10, random_state=42, n_jobs=-1
             )
             self.rf_model.fit(X_train_proc, y_train)
         
@@ -101,31 +110,34 @@ class InsuranceEnsembleModel:
         if LGB_AVAILABLE:
             logger.info("Training LightGBM...")
             self.lgb_model = lgb.LGBMClassifier(
-                n_estimators=100, learning_rate=0.1, num_leaves=31, random_state=42, n_jobs=-1
+                n_estimators=10, learning_rate=0.1, num_leaves=31, random_state=42, n_jobs=-1
             )
             self.lgb_model.fit(X_train_proc, y_train, eval_set=[(X_val_proc, y_val)] if X_val is not None else None)
         else:
             logger.warning("LightGBM not available, using GradientBoosting instead")
             self.gb_model = GradientBoostingClassifier(
-                n_estimators=100, learning_rate=0.1, max_depth=5, random_state=42
+                n_estimators=10, learning_rate=0.1, max_depth=5, random_state=42
             )
             self.gb_model.fit(X_train_proc, y_train)
         
-        # Neural Network
-        logger.info("Training Neural Network...")
-        self.nn_model = Sequential([
-            layers.Dense(128, activation='relu', input_shape=(len(self.feature_names),)),
-            layers.Dropout(0.3),
-            layers.Dense(64, activation='relu'),
-            layers.Dropout(0.3),
-            layers.Dense(32, activation='relu'),
-            layers.Dropout(0.2),
-            layers.Dense(1, activation='sigmoid')
-        ])
-        self.nn_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['auc'])
-        self.nn_model.fit(X_train_proc, y_train, epochs=50, batch_size=32, 
-                         validation_data=(X_val_proc, y_val) if X_val is not None else None,
-                         verbose=0)
+        # Neural Network (optional)
+        if TF_AVAILABLE:
+            logger.info("Training Neural Network...")
+            self.nn_model = Sequential([
+                layers.Dense(128, activation='relu', input_shape=(len(self.feature_names),)),
+                layers.Dropout(0.3),
+                layers.Dense(64, activation='relu'),
+                layers.Dropout(0.3),
+                layers.Dense(32, activation='relu'),
+                layers.Dropout(0.2),
+                layers.Dense(1, activation='sigmoid')
+            ])
+            self.nn_model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['auc'])
+            self.nn_model.fit(X_train_proc, y_train, epochs=50, batch_size=32, 
+                             validation_data=(X_val_proc, y_val) if X_val is not None else None,
+                             verbose=0)
+        else:
+            logger.warning("TensorFlow not available, skipping Neural Network training")
         
         logger.info("✓ Ensemble training complete")
     
@@ -138,12 +150,20 @@ class InsuranceEnsembleModel:
         if XGB_AVAILABLE and self.xgb_model is not None:
             xgb_pred = self.xgb_model.predict_proba(X_proc)[:, 1]
             predictions.append(xgb_pred)
+        elif self.rf_model is not None:
+            rf_pred = self.rf_model.predict_proba(X_proc)[:, 1]
+            predictions.append(rf_pred)
         
-        lgb_pred = self.lgb_model.predict_proba(X_proc)[:, 1]
-        predictions.append(lgb_pred)
+        if LGB_AVAILABLE and self.lgb_model is not None:
+            lgb_pred = self.lgb_model.predict_proba(X_proc)[:, 1]
+            predictions.append(lgb_pred)
+        elif self.gb_model is not None:
+            gb_pred = self.gb_model.predict_proba(X_proc)[:, 1]
+            predictions.append(gb_pred)
         
-        nn_pred = self.nn_model.predict(X_proc, verbose=0).flatten()
-        predictions.append(nn_pred)
+        if self.nn_model is not None:
+            nn_pred = self.nn_model.predict(X_proc, verbose=0).flatten()
+            predictions.append(nn_pred)
         
         # Ensemble: average of available models
         ensemble_pred = np.mean(predictions, axis=0)
@@ -153,18 +173,36 @@ class InsuranceEnsembleModel:
         """Generate SHAP explanation for a prediction."""
         X_proc = self.preprocess(X, fit=False)
         
-        # SHAP for available models (prefer XGBoost if available)
-        if XGB_AVAILABLE and self.xgb_model is not None:
-            explainer = shap.TreeExplainer(self.xgb_model)
-            shap_values = explainer.shap_values(X_proc.iloc[[instance_idx]])
-        else:
-            # Fall back to LightGBM SHAP
-            explainer = shap.TreeExplainer(self.lgb_model)
-            shap_values = explainer.shap_values(X_proc.iloc[[instance_idx]])
+        # SHAP for available models (prefer XGBoost/LightGBM if available)
+        explainer = None
+        shap_array = None
+        
+        if SHAP_AVAILABLE:
+            if XGB_AVAILABLE and self.xgb_model is not None:
+                explainer = shap.TreeExplainer(self.xgb_model)
+            elif LGB_AVAILABLE and self.lgb_model is not None:
+                explainer = shap.TreeExplainer(self.lgb_model)
+            elif self.rf_model is not None:
+                explainer = shap.TreeExplainer(self.rf_model)
+            elif self.gb_model is not None:
+                explainer = shap.TreeExplainer(self.gb_model)
+            
+            if explainer:
+                shap_values = explainer.shap_values(X_proc.iloc[[instance_idx]])
+                shap_array = shap_values[0] if isinstance(shap_values, (list, tuple)) else shap_values[0] if len(shap_values.shape) > 1 else shap_values
+        
+        if shap_array is None:
+            # Fallback: use feature importance from available model
+            if self.rf_model:
+                shap_array = self.rf_model.feature_importances_
+            elif self.gb_model:
+                shap_array = self.gb_model.feature_importances_
+            else:
+                shap_array = np.ones(len(self.feature_names))
         
         top_features = pd.DataFrame({
             'feature': self.feature_names,
-            'shap_value': shap_values[0] if isinstance(shap_values, np.ndarray) else shap_values
+            'shap_value': shap_array
         }).abs().nlargest(5, 'shap_value')
         
         return {

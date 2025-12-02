@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/leonida/Documents/automobile_claims/project_structure/mlruns/803388973159146705/1e541fb887b04d77a33684028e04b3ad/artifacts
+end_time: 1764688486817
+entry_point_name: ''
+experiment_id: '803388973159146705'
+lifecycle_stage: active
+run_id: 1e541fb887b04d77a33684028e04b3ad
+run_name: mercurial-duck-389
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764688381117
+status: 4
+tags: []
+user_id: leonida

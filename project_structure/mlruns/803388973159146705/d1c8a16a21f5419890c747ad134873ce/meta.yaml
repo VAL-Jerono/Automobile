@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/leonida/Documents/automobile_claims/project_structure/mlruns/803388973159146705/d1c8a16a21f5419890c747ad134873ce/artifacts
+end_time: 1764687962598
+entry_point_name: ''
+experiment_id: '803388973159146705'
+lifecycle_stage: active
+run_id: d1c8a16a21f5419890c747ad134873ce
+run_name: ambitious-cub-187
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764687433858
+status: 4
+tags: []
+user_id: leonida

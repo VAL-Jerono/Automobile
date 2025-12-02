@@ -286,3 +286,9 @@ For issues or questions, open a GitHub issue or contact the development team.
 **Version**: 1.0.0  
 **Last Updated**: December 2024  
 **Status**: Production Ready
+
+
+
+
+
+ln -sf data/raw/Motor_vehicle_insurance_data.csv "Motor vehicle insurance data.csv" && MLFLOW_TRACKING_URI=file:./mlruns PYTHONPATH=. ./venv/bin/python ml/train_pipeline.py 2>&1 | head -200

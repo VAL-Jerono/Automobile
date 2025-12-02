@@ -1,0 +1,8 @@
+/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+⚠️  LightGBM unavailable, using sklearn alternatives
+⚠️  TensorFlow unavailable, using sklearn ensemble only
+Traceback (most recent call last):
+  File "/Users/leonida/Documents/automobile_claims/project_structure/ml/train_pipeline.py", line 18, in <module>
+    from data.scripts.load_raw_data import load_insurance_data_from_csv
+ImportError: cannot import name 'load_insurance_data_from_csv' from 'data.scripts.load_raw_data' (/Users/leonida/Documents/automobile_claims/project_structure/data/scripts/load_raw_data.py)

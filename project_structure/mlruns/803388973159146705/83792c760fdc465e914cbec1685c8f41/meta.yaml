@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/leonida/Documents/automobile_claims/project_structure/mlruns/803388973159146705/83792c760fdc465e914cbec1685c8f41/artifacts
+end_time: 1764685040291
+entry_point_name: ''
+experiment_id: '803388973159146705'
+lifecycle_stage: active
+run_id: 83792c760fdc465e914cbec1685c8f41
+run_name: fun-crane-596
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764684701853
+status: 4
+tags: []
+user_id: leonida

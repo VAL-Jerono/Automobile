@@ -115,3 +115,28 @@ def load_csv_to_mysql():
 
 if __name__ == '__main__':
     load_csv_to_mysql()
+
+
+def load_insurance_data_from_csv(csv_path: str = None) -> "pd.DataFrame":
+    """Return the insurance DataFrame from CSV.
+
+    This is a small compatibility wrapper used by the training pipeline.
+    If `csv_path` is None it uses the repository default `data/raw/Motor_vehicle_insurance_data.csv`.
+    The function parses the same date columns as the loader script.
+    """
+    if csv_path is None:
+        csv_path = 'data/raw/Motor_vehicle_insurance_data.csv'
+
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+
+    df = pd.read_csv(csv_path, sep=';', low_memory=False, encoding='utf-8')
+
+    # Parse date columns consistently with the loader
+    date_cols = ['Date_start_contract', 'Date_last_renewal', 'Date_next_renewal', 
+                 'Date_birth', 'Date_driving_licence', 'Date_lapse']
+    for col in date_cols:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], dayfirst=True, errors='coerce')
+
+    return df

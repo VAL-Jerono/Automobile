@@ -1,0 +1,90 @@
+/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:__main__:============================================================
+INFO:__main__:Insurance Risk Model Training Pipeline
+INFO:__main__:============================================================
+INFO:__main__:Loading data from Motor vehicle insurance data.csv...
+INFO:__main__:Loaded dataset shape: (105555, 30)
+INFO:__main__:Preprocessing data...
+/Users/leonida/Documents/automobile_claims/project_structure/ml/train_pipeline.py:59: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.
+The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.
+
+For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.
+
+
+  X_processed[col].fillna('Unknown', inplace=True)
+/Users/leonida/Documents/automobile_claims/project_structure/ml/train_pipeline.py:61: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.
+The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.
+
+For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.
+
+
+  X_processed[col].fillna(X_processed[col].median(), inplace=True)
+/Users/leonida/Documents/automobile_claims/project_structure/ml/train_pipeline.py:66: UserWarning: Could not infer format, so each element will be parsed individually, falling back to `dateutil`. To ensure parsing is consistent and as-expected, please specify a format.
+  X_processed[col] = pd.to_datetime(X_processed[col], dayfirst=True, errors='coerce')
+INFO:__main__:Preprocessed data shape: (105555, 28)
+INFO:__main__:Starting model training...
+INFO:__main__:Train: (73888, 28), Val: (10556, 28), Test: (21111, 28)
+INFO:__main__:Training ensemble model...
+INFO:ml.models.ensemble:Training ensemble model...
+WARNING:ml.models.ensemble:XGBoost not available, using RandomForest instead
+WARNING:ml.models.ensemble:LightGBM not available, using GradientBoosting instead
+WARNING:ml.models.ensemble:TensorFlow not available, skipping Neural Network training
+INFO:ml.models.ensemble:✓ Ensemble training complete
+WARNING:__main__:Could not compute ROC-AUC: axis 1 is out of bounds for array of dimension 1
+INFO:__main__:
+Model Performance:
+INFO:__main__:  Accuracy:  0.9405
+INFO:__main__:  Precision: 0.9261
+INFO:__main__:  Recall:    0.9405
+INFO:__main__:  F1-Score:  0.9317
+INFO:__main__:  ROC-AUC:   0.0000
+INFO:__main__:
+Running cross-validation...
+/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/sklearn/model_selection/_split.py:805: UserWarning: The least populated class in y has only 2 members, which is less than n_splits=5.
+  warnings.warn(
+WARNING:__main__:Could not run cross-validation: 
+All the 5 fits failed.
+It is very likely that your model is misconfigured.
+You can try to debug the error by setting error_score='raise'.
+
+Below are more details about the failures:
+--------------------------------------------------------------------------------
+5 fits failed with the following error:
+Traceback (most recent call last):
+  File "/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/sklearn/model_selection/_validation.py", line 866, in _fit_and_score
+    estimator.fit(X_train, y_train, **fit_params)
+  File "/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/sklearn/base.py", line 1389, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/sklearn/ensemble/_forest.py", line 360, in fit
+    X, y = validate_data(
+  File "/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/sklearn/utils/validation.py", line 2961, in validate_data
+    X, y = check_X_y(X, y, **check_params)
+  File "/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/sklearn/utils/validation.py", line 1370, in check_X_y
+    X = check_array(
+  File "/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/sklearn/utils/validation.py", line 1055, in check_array
+    array = _asarray_with_order(array, order=order, dtype=dtype, xp=xp)
+  File "/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/sklearn/utils/_array_api.py", line 839, in _asarray_with_order
+    array = numpy.asarray(array, order=order, dtype=dtype)
+  File "/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/pandas/core/generic.py", line 2171, in __array__
+    arr = np.asarray(values, dtype=dtype)
+ValueError: could not convert string to float: 'D'
+
+INFO:__main__:Model saved to models/ensemble_model_20251202_183757.pkl
+ERROR:__main__:Pipeline failed: local variable 'cv_scores' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/leonida/Documents/automobile_claims/project_structure/ml/train_pipeline.py", line 207, in run
+    results = self.train_and_evaluate(X_processed, y)
+  File "/Users/leonida/Documents/automobile_claims/project_structure/ml/train_pipeline.py", line 190, in train_and_evaluate
+    'cv_scores': cv_scores.tolist()
+UnboundLocalError: local variable 'cv_scores' referenced before assignment
+⚠️  LightGBM unavailable, using sklearn alternatives
+⚠️  TensorFlow unavailable, using sklearn ensemble only
+Traceback (most recent call last):
+  File "/Users/leonida/Documents/automobile_claims/project_structure/ml/train_pipeline.py", line 221, in <module>
+    results = pipeline.run()
+  File "/Users/leonida/Documents/automobile_claims/project_structure/ml/train_pipeline.py", line 207, in run
+    results = self.train_and_evaluate(X_processed, y)
+  File "/Users/leonida/Documents/automobile_claims/project_structure/ml/train_pipeline.py", line 190, in train_and_evaluate
+    'cv_scores': cv_scores.tolist()
+UnboundLocalError: local variable 'cv_scores' referenced before assignment

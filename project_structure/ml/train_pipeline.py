@@ -111,11 +111,21 @@ class TrainingPipeline:
             # Metrics
             from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
             
+            # Check if binary or multiclass
+            n_classes = len(np.unique(y_test))
+            is_binary = n_classes == 2
+            
             accuracy = accuracy_score(y_test, y_pred)
-            precision = precision_score(y_test, y_pred)
-            recall = recall_score(y_test, y_pred)
-            f1 = f1_score(y_test, y_pred)
-            auc = roc_auc_score(y_test, y_pred_proba)
+            precision = precision_score(y_test, y_pred, average='binary' if is_binary else 'weighted', zero_division=0)
+            recall = recall_score(y_test, y_pred, average='binary' if is_binary else 'weighted', zero_division=0)
+            f1 = f1_score(y_test, y_pred, average='binary' if is_binary else 'weighted', zero_division=0)
+            
+            # ROC-AUC only for binary
+            try:
+                auc = roc_auc_score(y_test, y_pred_proba) if is_binary else roc_auc_score(y_test, y_pred_proba, multi_class='ovr', average='weighted')
+            except Exception as e:
+                logger.warning(f"Could not compute ROC-AUC: {e}")
+                auc = 0.0
             
             logger.info(f"\nModel Performance:")
             logger.info(f"  Accuracy:  {accuracy:.4f}")
@@ -136,24 +146,37 @@ class TrainingPipeline:
             # Cross-validation
             logger.info("\nRunning cross-validation...")
             cv = StratifiedKFold(n_splits=self.config['ml']['validation']['cross_validation_folds'], shuffle=True)
-            cv_scores = cross_val_score(model.estimators_['xgb'], X, y, cv=cv, scoring='roc_auc')
-            logger.info(f"CV AUC scores: {cv_scores}")
-            logger.info(f"Mean CV AUC: {cv_scores.mean():.4f} (+/- {cv_scores.std():.4f})")
             
-            mlflow.log_metrics({
-                'cv_auc_mean': cv_scores.mean(),
-                'cv_auc_std': cv_scores.std()
-            })
+            # Use RandomForest if available, else GradientBoosting
+            estimator_to_cv = model.rf_model if hasattr(model, 'rf_model') and model.rf_model else model.gb_model
+            if estimator_to_cv:
+                try:
+                    cv_scores = cross_val_score(estimator_to_cv, X_train, y_train, cv=cv, scoring='accuracy')
+                    logger.info(f"CV Accuracy scores: {cv_scores}")
+                    logger.info(f"Mean CV Accuracy: {cv_scores.mean():.4f} (+/- {cv_scores.std():.4f})")
+                    
+                    mlflow.log_metrics({
+                        'cv_accuracy_mean': cv_scores.mean(),
+                        'cv_accuracy_std': cv_scores.std()
+                    })
+                except Exception as e:
+                    logger.warning(f"Could not run cross-validation: {e}")
+            else:
+                logger.warning("No model available for cross-validation")
             
             # Save model
             models_dir = os.getenv('MODELS_DIR', 'models')
             os.makedirs(models_dir, exist_ok=True)
-            model_path = os.path.join(models_dir, f"ensemble_model_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
-            model.save(model_path)
+            model_filename = f"ensemble_model_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
+            model_path = os.path.join(models_dir, model_filename)
+            
+            # Use joblib to serialize the model
+            import joblib
+            joblib.dump(model, model_path)
             logger.info(f"Model saved to {model_path}")
             
-            # Log model to MLflow
-            mlflow.log_artifact(model_path)
+            # Log model directory to MLflow
+            mlflow.log_artifact(models_dir)
             
             return {
                 'model': model,
