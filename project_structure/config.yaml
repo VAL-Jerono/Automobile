@@ -1,0 +1,96 @@
+project:
+  name: "Intelligent Insurance Risk Platform"
+  version: "1.0.0"
+  description: "Production-grade ML/AI system for motor insurance risk assessment"
+
+data:
+  source:
+    type: "csv"
+    path: "data/raw/Motor_vehicle_insurance_data.csv"
+    delimiter: ";"
+    encoding: "utf-8"
+  target: "Lapse"
+  test_split: 0.2
+  validation_split: 0.1
+
+database:
+  mysql:
+    host: "${MYSQL_HOST}"
+    port: "${MYSQL_PORT}"
+    user: "${MYSQL_USER}"
+    password: "${MYSQL_PASSWORD}"
+    database: "${MYSQL_DATABASE}"
+
+ml:
+  ensemble:
+    models:
+      - type: "xgboost"
+        params:
+          n_estimators: 100
+          learning_rate: 0.1
+          max_depth: 6
+          subsample: 0.8
+      - type: "lightgbm"
+        params:
+          n_estimators: 100
+          learning_rate: 0.1
+          num_leaves: 31
+      - type: "neural_network"
+        params:
+          layers: [128, 64, 32]
+          dropout: 0.3
+          epochs: 50
+          batch_size: 32
+  
+  feature_engineering:
+    date_features: true
+    interaction_features: true
+    polynomial_features: false
+    scaling: "standard"
+  
+  validation:
+    cross_validation_folds: 5
+    stratified: true
+
+llm:
+  provider: "ollama"
+  model: "llama2"
+  quantization: "q4_K_M"
+  base_url: "${OLLAMA_HOST}"
+  fine_tuning:
+    method: "LoRA"
+    r: 8
+    lora_alpha: 16
+    target_modules: ["q_proj", "v_proj"]
+
+rag:
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  vector_db: "chromadb"
+  chunk_size: 512
+  chunk_overlap: 50
+  similarity_threshold: 0.7
+
+api:
+  host: "${API_HOST}"
+  port: "${API_PORT}"
+  debug: "${API_DEBUG}"
+  version: "v1"
+  max_workers: 4
+
+monitoring:
+  mlflow:
+    enabled: true
+    uri: "${MLFLOW_TRACKING_URI}"
+  prometheus:
+    enabled: true
+    port: "${PROMETHEUS_PORT}"
+  drift_detection:
+    enabled: true
+    method: "KS_test"
+    threshold: 0.05
+
+ci_cd:
+  github_actions:
+    enabled: true
+    test_coverage_min: 80
+    model_performance_min_auc: 0.75

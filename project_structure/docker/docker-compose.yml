@@ -1,0 +1,126 @@
+# Docker Compose orchestration for complete insurance platform stack
+# Services: MySQL, API (FastAPI), Ollama (LLM), MLflow, Prometheus, Grafana
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: insurance_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-insurance_db}
+      MYSQL_USER: ${MYSQL_USER:-insurance_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-user_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - insurance_network
+
+  # FastAPI Application
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: insurance_api
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      API_DEBUG: "false"
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-insurance_db}
+      MYSQL_USER: ${MYSQL_USER:-insurance_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-user_password}
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      OLLAMA_HOST: http://ollama:11434
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+    networks:
+      - insurance_network
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Ollama LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: insurance_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    networks:
+      - insurance_network
+    command: serve
+
+  # MLflow Tracking Server
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container_name: insurance_mlflow
+    environment:
+      BACKEND_STORE_URI: mysql+pymysql://${MYSQL_USER:-insurance_user}:${MYSQL_PASSWORD:-user_password}@mysql:3306/${MYSQL_DATABASE:-insurance_db}?charset=utf8mb4
+    ports:
+      - "5000:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - mlflow_artifacts:/mlflow
+    networks:
+      - insurance_network
+    command: mlflow server --backend-store-uri mysql+pymysql://${MYSQL_USER:-insurance_user}:${MYSQL_PASSWORD:-user_password}@mysql:3306/${MYSQL_DATABASE:-insurance_db}?charset=utf8mb4 --default-artifact-root /mlflow/artifacts --host 0.0.0.0
+
+  # Prometheus Metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: insurance_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - insurance_network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  # Grafana Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: insurance_grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - insurance_network
+
+volumes:
+  mysql_data:
+  ollama_data:
+  mlflow_artifacts:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  insurance_network:
+    driver: bridge

@@ -1,0 +1,13 @@
+# Dockerfile for Ollama with pre-pulled model
+
+FROM ollama/ollama:latest
+
+# Pre-pull the model (llama2 in this case)
+# Note: This will increase image size significantly (~7GB+)
+# Alternative: Pull model dynamically on first run
+
+ENV OLLAMA_HOST=0.0.0.0:11434
+
+EXPOSE 11434
+
+CMD ["/bin/ollama", "serve"]

@@ -1,0 +1,37 @@
+"""
+Prometheus configuration for metrics collection.
+Scrapes metrics from API and other services.
+"""
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'insurance-platform'
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # FastAPI application metrics
+  - job_name: 'api'
+    static_configs:
+      - targets: ['api:8000']
+    metrics_path: '/metrics'
+
+  # Ollama service
+  - job_name: 'ollama'
+    static_configs:
+      - targets: ['ollama:11434']
+
+  # MySQL database
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql:3306']
+
+  # MLflow server
+  - job_name: 'mlflow'
+    static_configs:
+      - targets: ['mlflow:5000']
