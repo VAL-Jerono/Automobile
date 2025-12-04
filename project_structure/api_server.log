@@ -1,0 +1,62 @@
+INFO:     Will watch for changes in these directories: ['/Users/leonida/Documents/automobile_claims/project_structure']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [43677] using StatReload
+INFO:     Started server process [43679]
+INFO:     Waiting for application startup.
+INFO:api.main:Starting Insurance Risk Platform API...
+INFO:api.dependencies:Skipping heavy model instantiation at startup (initialized on first request)
+INFO:api.dependencies:Skipping heavy RAG instantiation at startup (initialized on first request)
+INFO:     Application startup complete.
+INFO:     127.0.0.1:51746 - "GET /health HTTP/1.1" 200 OK
+ERROR:api.routes.predictions:Prediction failed: No module named 'sentence_transformers'
+⚠️  LightGBM unavailable, using sklearn alternatives
+⚠️  TensorFlow unavailable, using sklearn ensemble only
+INFO:     127.0.0.1:51748 - "POST /api/v1/predict/lapse HTTP/1.1" 500 Internal Server Error
+WARNING:  StatReload detected changes in 'ml/rag/retrieval.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:api.main:Shutting down API...
+INFO:     Application shutdown complete.
+INFO:     Finished server process [43679]
+INFO:     Started server process [43907]
+INFO:     Waiting for application startup.
+INFO:api.main:Starting Insurance Risk Platform API...
+INFO:api.dependencies:Skipping heavy model instantiation at startup (initialized on first request)
+INFO:api.dependencies:Skipping heavy RAG instantiation at startup (initialized on first request)
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'ml/rag/retrieval.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:api.main:Shutting down API...
+INFO:     Application shutdown complete.
+INFO:     Finished server process [43907]
+INFO:     Started server process [43924]
+INFO:     Waiting for application startup.
+INFO:api.main:Starting Insurance Risk Platform API...
+INFO:api.dependencies:Skipping heavy model instantiation at startup (initialized on first request)
+INFO:api.dependencies:Skipping heavy RAG instantiation at startup (initialized on first request)
+INFO:     Application startup complete.
+INFO:     127.0.0.1:51815 - "GET /health HTTP/1.1" 200 OK
+/Users/leonida/Documents/automobile_claims/project_structure/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:ml.models.ensemble:✓ Model loaded from models/ensemble_model_20251204_223000.pkl
+ERROR:api.routes.predictions:Prediction failed: 'type_fuel'
+⚠️  LightGBM unavailable, using sklearn alternatives
+⚠️  TensorFlow unavailable, using sklearn ensemble only
+⚠️  sentence-transformers not available, RAG features disabled
+⚠️  ChromaDB not available, RAG features disabled
+INFO:     127.0.0.1:51817 - "POST /api/v1/predict/lapse HTTP/1.1" 500 Internal Server Error
+WARNING:  StatReload detected changes in 'frontend/serve.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:api.main:Shutting down API...
+INFO:     Application shutdown complete.
+INFO:     Finished server process [43924]
+INFO:     Started server process [46463]
+INFO:     Waiting for application startup.
+INFO:api.main:Starting Insurance Risk Platform API...
+INFO:api.dependencies:Skipping heavy model instantiation at startup (initialized on first request)
+INFO:api.dependencies:Skipping heavy RAG instantiation at startup (initialized on first request)
+INFO:     Application startup complete.
+INFO:     127.0.0.1:52487 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52975 - "GET /health HTTP/1.1" 200 OK

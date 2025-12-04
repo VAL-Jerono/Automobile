@@ -5,9 +5,21 @@ Uses ChromaDB + sentence-transformers for semantic search.
 
 import pandas as pd
 import numpy as np
-from sentence_transformers import SentenceTransformer
-import chromadb
-from chromadb.config import Settings
+try:
+    from sentence_transformers import SentenceTransformer
+    SENTENCE_TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    SENTENCE_TRANSFORMERS_AVAILABLE = False
+    print("⚠️  sentence-transformers not available, RAG features disabled")
+    
+try:
+    import chromadb
+    from chromadb.config import Settings
+    CHROMADB_AVAILABLE = True
+except ImportError:
+    CHROMADB_AVAILABLE = False
+    print("⚠️  ChromaDB not available, RAG features disabled")
+    
 from typing import List, Dict, Any
 import logging
 
@@ -20,6 +32,14 @@ class RAGEngine:
     
     def __init__(self, embedding_model: str = 'sentence-transformers/all-MiniLM-L6-v2',
                  vector_db_path: str = './vector_db', similarity_threshold: float = 0.7):
+        if not SENTENCE_TRANSFORMERS_AVAILABLE or not CHROMADB_AVAILABLE:
+            logger.warning("RAG dependencies not available - RAGEngine will not function")
+            self.embedding_model = None
+            self.client = None
+            self.policy_collection = None
+            self.claims_collection = None
+            return
+            
         self.embedding_model = SentenceTransformer(embedding_model)
         self.vector_db_path = vector_db_path
         self.similarity_threshold = similarity_threshold

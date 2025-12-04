@@ -66,6 +66,13 @@ class TrainingPipeline:
             X_processed[col] = pd.to_datetime(X_processed[col], dayfirst=True, errors='coerce')
             X_processed[col] = X_processed[col].astype(np.int64) // 10**9  # Convert to seconds
         
+        # Encode categorical columns (string/object types)
+        from sklearn.preprocessing import LabelEncoder
+        for col in X_processed.columns:
+            if X_processed[col].dtype == 'object':
+                le = LabelEncoder()
+                X_processed[col] = le.fit_transform(X_processed[col].astype(str))
+        
         logger.info(f"Preprocessed data shape: {X_processed.shape}")
         return X_processed
     
@@ -187,7 +194,7 @@ class TrainingPipeline:
                     'f1': f1,
                     'auc': auc
                 },
-                'cv_scores': cv_scores.tolist()
+                'cv_scores': cv_scores.tolist() if 'cv_scores' in locals() else []
             }
     
     def run(self, csv_path: str = 'Motor vehicle insurance data.csv'):

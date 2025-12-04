@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AutoGuard Insurance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-shield-alt"></i>
+                <h3>AutoGuard Admin</h3>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="#customers" class="nav-item" data-section="customers">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+                <a href="#policies" class="nav-item" data-section="policies">
+                    <i class="fas fa-file-contract"></i> Policies
+                </a>
+                <a href="#claims" class="nav-item" data-section="claims">
+                    <i class="fas fa-clipboard-list"></i> Claims
+                </a>
+                <a href="#analytics" class="nav-item" data-section="analytics">
+                    <i class="fas fa-chart-pie"></i> Analytics
+                </a>
+                <a href="#risk" class="nav-item" data-section="risk">
+                    <i class="fas fa-exclamation-triangle"></i> Risk Management
+                </a>
+                <a href="#ml" class="nav-item" data-section="ml">
+                    <i class="fas fa-brain"></i> ML Insights
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="index.html" class="btn btn-outline-light btn-sm w-100">
+                    <i class="fas fa-home"></i> Customer Portal
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="btn btn-link" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h4 class="mb-0">Admin Dashboard</h4>
+                </div>
+                <div class="topbar-right">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search customers, policies..." id="globalSearch">
+                    </div>
+                    <div class="notifications">
+                        <button class="btn btn-link position-relative">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">12</span>
+                        </button>
+                    </div>
+                    <div class="user-menu">
+                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=667eea&color=fff" alt="Admin">
+                        <span>Admin User</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <section id="section-dashboard" class="content-section active">
+                    <div class="section-header">
+                        <h2>Overview Dashboard</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-outline-primary" onclick="refreshDashboard()">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                            <button class="btn btn-primary" onclick="exportReport()">
+                                <i class="fas fa-download"></i> Export Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-icon bg-primary">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="kpi-details">
+                                    <h6>Total Customers</h6>
+                                    <h3 id="totalCustomers">0</h3>
+                                    <span class="badge bg-success"><i class="fas fa-arrow-up"></i> 12.5%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-icon bg-success">
+                                    <i class="fas fa-file-contract"></i>
+                                </div>
+                                <div class="kpi-details">
+                                    <h6>Active Policies</h6>
+                                    <h3 id="activePolicies">0</h3>
+                                    <span class="badge bg-success"><i class="fas fa-arrow-up"></i> 8.3%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-icon bg-warning">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <div class="kpi-details">
+                                    <h6>High Lapse Risk</h6>
+                                    <h3 id="highRisk">0</h3>
+                                    <span class="badge bg-danger"><i class="fas fa-arrow-up"></i> 3.2%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-icon bg-info">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="kpi-details">
+                                    <h6>Total Premium</h6>
+                                    <h3 id="totalPremium">$0</h3>
+                                    <span class="badge bg-success"><i class="fas fa-arrow-up"></i> 15.7%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-lg-8">
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h5>Revenue Trend</h5>
+                                    <select class="form-select form-select-sm" style="width: auto;">
+                                        <option>Last 12 Months</option>
+                                        <option>Last 6 Months</option>
+                                        <option>Last 30 Days</option>
+                                    </select>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h5>Policy Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="policyDistChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Analysis Row -->
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h5>Lapse Risk Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="riskDistChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h5>Recent Activity</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="activity-list" id="activityList">
+                                        <!-- Activity items will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Customers Section -->
+                <section id="section-customers" class="content-section">
+                    <div class="section-header">
+                        <h2>Customer Management</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-outline-primary">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Add Customer
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-controls">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Search customers..." id="customerSearch">
+                            </div>
+                            <select class="form-select" style="width: auto;">
+                                <option>All Customers</option>
+                                <option>High Value</option>
+                                <option>At Risk</option>
+                                <option>New</option>
+                            </select>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Customer ID</th>
+                                        <th>Name</th>
+                                        <th>Age</th>
+                                        <th>Policies</th>
+                                        <th>Premium</th>
+                                        <th>Risk Score</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customersTableBody">
+                                    <!-- Table rows will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-pagination">
+                            <span>Showing 1-20 of 191,480</span>
+                            <div class="pagination-controls">
+                                <button class="btn btn-sm btn-outline-secondary">Previous</button>
+                                <button class="btn btn-sm btn-primary">1</button>
+                                <button class="btn btn-sm btn-outline-secondary">2</button>
+                                <button class="btn btn-sm btn-outline-secondary">3</button>
+                                <button class="btn btn-sm btn-outline-secondary">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Policies Section -->
+                <section id="section-policies" class="content-section">
+                    <div class="section-header">
+                        <h2>Policy Management</h2>
+                        <div class="header-actions">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-plus"></i> New Policy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="stat-box">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <h4>Active</h4>
+                                <h3 id="activePoliciesCount">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-box">
+                                <i class="fas fa-clock text-warning"></i>
+                                <h4>Expiring Soon</h4>
+                                <h3 id="expiringSoon">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-box">
+                                <i class="fas fa-times-circle text-danger"></i>
+                                <h4>Lapsed</h4>
+                                <h3 id="lapsedPolicies">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Policy ID</th>
+                                        <th>Customer</th>
+                                        <th>Type</th>
+                                        <th>Vehicle</th>
+                                        <th>Premium</th>
+                                        <th>Start Date</th>
+                                        <th>Renewal Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="policiesTableBody">
+                                    <!-- Table rows will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Claims Section -->
+                <section id="section-claims" class="content-section">
+                    <div class="section-header">
+                        <h2>Claims Management</h2>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Claim ID</th>
+                                        <th>Policy</th>
+                                        <th>Customer</th>
+                                        <th>Date Filed</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="claimsTableBody">
+                                    <tr>
+                                        <td>CLM-2025-001</td>
+                                        <td>POL-12345</td>
+                                        <td>John Doe</td>
+                                        <td>2025-12-01</td>
+                                        <td>$3,500</td>
+                                        <td><span class="badge bg-warning">Pending</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="section-analytics" class="content-section">
+                    <div class="section-header">
+                        <h2>Advanced Analytics</h2>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h5>Customer Age Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="ageDistChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h5>Vehicle Type Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="vehicleTypeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="chart-card">
+                                <div class="card-header">
+                                    <h5>Claims Trend Analysis</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="claimsTrendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Risk Management Section -->
+                <section id="section-risk" class="content-section">
+                    <div class="section-header">
+                        <h2>Risk Management</h2>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>High Risk Alert:</strong> 2,847 policies identified with high lapse risk. Action recommended.
+                    </div>
+
+                    <div class="table-card">
+                        <div class="card-header">
+                            <h5>High Risk Policies</h5>
+                            <button class="btn btn-sm btn-warning" onclick="exportRiskReport()">
+                                <i class="fas fa-download"></i> Export Risk Report
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Policy ID</th>
+                                        <th>Customer</th>
+                                        <th>Lapse Risk %</th>
+                                        <th>Premium</th>
+                                        <th>Claims History</th>
+                                        <th>Recommendation</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="riskTableBody">
+                                    <!-- High risk policies will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ML Insights Section -->
+                <section id="section-ml" class="content-section">
+                    <div class="section-header">
+                        <h2>Machine Learning Insights</h2>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="ml-metric">
+                                <h6>Model Accuracy</h6>
+                                <h3 class="text-success">94.05%</h3>
+                                <p class="text-muted">Test Set Performance</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="ml-metric">
+                                <h6>CV Accuracy</h6>
+                                <h3 class="text-success">93.78%</h3>
+                                <p class="text-muted">Cross-Validation</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="ml-metric">
+                                <h6>F1-Score</h6>
+                                <h3 class="text-info">0.9317</h3>
+                                <p class="text-muted">Balanced Performance</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="ml-metric">
+                                <h6>Predictions Today</h6>
+                                <h3 class="text-primary" id="predictionCount">0</h3>
+                                <p class="text-muted">Real-time Scoring</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h5>Feature Importance</h5>
+                            <p class="text-muted mb-0">Top factors influencing lapse prediction</p>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="featureImportanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h5>Model Performance Over Time</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="modelPerformanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

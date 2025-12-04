@@ -222,11 +222,35 @@ class InsuranceEnsembleModel:
         logger.info(f"✓ Models saved to {path}")
     
     def load(self, path: str = None):
-        """Load models."""
+        """Load models - supports both single file and multi-file formats."""
+        import os
+        import glob
+        
         path = path or self.model_dir
-        self.xgb_model = joblib.load(f'{path}/xgb_model.pkl')
-        self.lgb_model = joblib.load(f'{path}/lgb_model.pkl')
-        self.nn_model = tf.keras.models.load_model(f'{path}/nn_model.h5')
-        self.scaler = joblib.load(f'{path}/scaler.pkl')
-        self.label_encoders = joblib.load(f'{path}/label_encoders.pkl')
-        logger.info(f"✓ Models loaded from {path}")
+        
+        # Check if path is a directory or a specific file
+        if os.path.isfile(path):
+            # Load single ensemble model file
+            loaded_model = joblib.load(path)
+            # Copy attributes from loaded model
+            self.__dict__.update(loaded_model.__dict__)
+            logger.info(f"✓ Model loaded from {path}")
+        elif os.path.isdir(path):
+            # Try to find the most recent ensemble model file
+            model_files = glob.glob(os.path.join(path, 'ensemble_model_*.pkl'))
+            if model_files:
+                # Sort by timestamp in filename and get most recent
+                latest_model = sorted(model_files)[-1]
+                loaded_model = joblib.load(latest_model)
+                self.__dict__.update(loaded_model.__dict__)
+                logger.info(f"✓ Model loaded from {latest_model}")
+            else:
+                # Try legacy multi-file format
+                self.xgb_model = joblib.load(f'{path}/xgb_model.pkl')
+                self.lgb_model = joblib.load(f'{path}/lgb_model.pkl')
+                self.nn_model = tf.keras.models.load_model(f'{path}/nn_model.h5')
+                self.scaler = joblib.load(f'{path}/scaler.pkl')
+                self.label_encoders = joblib.load(f'{path}/label_encoders.pkl')
+                logger.info(f"✓ Models loaded from {path}")
+        else:
+            raise FileNotFoundError(f"Path not found: {path}")

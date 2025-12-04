@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/leonida/Documents/automobile_claims/project_structure/mlruns/803388973159146705/0fd1cc4f7e1f4527b2abe6fd56e02811/artifacts
+end_time: 1764876600417
+entry_point_name: ''
+experiment_id: '803388973159146705'
+lifecycle_stage: active
+run_id: 0fd1cc4f7e1f4527b2abe6fd56e02811
+run_name: bustling-shark-446
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764876541342
+status: 3
+tags: []
+user_id: leonida

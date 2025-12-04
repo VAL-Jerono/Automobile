@@ -1,0 +1,15 @@
+127.0.0.1 - - [04/Dec/2025 22:54:31] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 22:54:54] "GET /?id=40d1ad20-4cf8-455a-8e13-08fe68074570&vscodeBrowserReqId=1764878094306 HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 22:54:54] "GET /css/styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 22:54:54] "GET /js/app.js HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 22:54:58] "GET /admin.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 22:54:58] "GET /css/admin.css HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 22:54:58] "GET /js/admin.js HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 22:55:01] code 404, message File not found
+127.0.0.1 - - [04/Dec/2025 22:55:01] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [04/Dec/2025 22:59:01] "GET /admin.html?id=40d1ad20-4cf8-455a-8e13-08fe68074570&vscodeBrowserReqId=1764878341275 HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 22:59:01] "GET /css/admin.css HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 22:59:01] "GET /js/admin.js HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 23:08:34] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 23:08:35] "GET /css/styles.css HTTP/1.1" 200 -
+127.0.0.1 - - [04/Dec/2025 23:08:35] "GET /js/app.js HTTP/1.1" 200 -
