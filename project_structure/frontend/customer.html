@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karbima Agency - Your Trusted Insurance Partner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: drift 20s linear infinite;
+        }
+
+        @keyframes drift {
+            to {
+                transform: translate(-50px, -50px);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.25rem 3rem;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            color: #667eea;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 2rem;
+            background: #f8f9fa;
+        }
+
+        .features-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+            color: #1a202c;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1a202c;
+        }
+
+        .feature-text {
+            color: #718096;
+            line-height: 1.7;
+        }
+
+        /* Quote Form Section */
+        .quote-section {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .quote-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .quote-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 0.875rem 1.25rem;
+            background: rgba(255, 255, 255, 0.95);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: white;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+            background: white;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 1.25rem;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Result Modal */
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .result-content {
+            background: white;
+            border-radius: 30px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .result-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+        }
+
+        .premium-display {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .premium-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .premium-value {
+            font-size: 3rem;
+            font-weight: 900;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a202c;
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Drive with Confidence.</h1>
+            <p>Comprehensive motor insurance tailored to your needs. Get instant quotes from trusted insurers.</p>
+            <a href="#get-quote" class="cta-button">
+                <i class="fas fa-calculator"></i> Get Your Free Quote
+            </a>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="container">
+            <h2 class="features-title">Why Choose Karbima Agency?</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="feature-title">Instant Quotes</div>
+                        <div class="feature-text">
+                            Get personalized insurance quotes in seconds using our advanced ML-powered pricing engine.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="feature-title">Comprehensive Coverage</div>
+                        <div class="feature-text">
+                            From third-party liability to comprehensive protection, we've got you covered.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="feature-title">24/7 Support</div>
+                        <div class="feature-text">
+                            Our dedicated agents are always here to help with claims, renewals, and questions.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quote Form -->
+    <section class="quote-section" id="get-quote">
+        <div class="quote-container">
+            <h2 class="quote-title">Get Your Instant Quote</h2>
+            <form id="quoteForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Your Age</label>
+                        <input type="number" class="form-control" name="age" min="18" max="100" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Driving Experience (years)</label>
+                        <input type="number" class="form-control" name="experience" min="0" max="60" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Vehicle Year</label>
+                        <input type="number" class="form-control" name="vehicle_year" min="1990" max="2025" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Vehicle Value ($)</label>
+                        <input type="number" class="form-control" name="vehicle_value" min="1000" step="100" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Coverage Type</label>
+                        <select class="form-select" name="coverage" required>
+                            <option value="">Select coverage...</option>
+                            <option value="tpo">Third Party Only</option>
+                            <option value="tpft">Third Party Fire & Theft</option>
+                            <option value="comprehensive">Comprehensive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Previous Claims</label>
+                        <input type="number" class="form-control" name="claims" min="0" max="10" value="0" required>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-calculator"></i> Calculate My Premium
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Result Modal -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <button class="close-modal" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 class="result-title">Your Personalized Quote</h3>
+            <div class="premium-display">
+                <div class="premium-label">Estimated Annual Premium</div>
+                <div class="premium-value" id="premiumValue">$0</div>
+            </div>
+            <div style="color: #718096; margin-bottom: 1.5rem;" id="riskMessage"></div>
+            <button class="submit-button" onclick="closeModal()">
+                <i class="fas fa-phone"></i> Contact Agent to Proceed
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p style="margin: 0;">&copy; 2025 Karbima Agency. All rights reserved.</p>
+        <p style="margin-top: 0.5rem; opacity: 0.7;">Trusted by 191,000+ customers</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Quote calculation
+        document.getElementById('quoteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {
+                age: parseInt(formData.get('age')),
+                experience: parseInt(formData.get('experience')),
+                vehicle_year: parseInt(formData.get('vehicle_year')),
+                vehicle_value: parseFloat(formData.get('vehicle_value')),
+                coverage: formData.get('coverage'),
+                claims: parseInt(formData.get('claims'))
+            };
+
+            // Simple premium calculation
+            let premium = 300; // Base premium
+
+            // Age factor
+            if (data.age < 25) premium *= 1.5;
+            else if (data.age > 65) premium *= 1.2;
+
+            // Experience factor
+            if (data.experience < 2) premium *= 1.4;
+            else if (data.experience < 5) premium *= 1.15;
+
+            // Vehicle age
+            const vehicleAge = new Date().getFullYear() - data.vehicle_year;
+            premium *= (1 + vehicleAge * 0.03);
+
+            // Vehicle value
+            premium += data.vehicle_value * 0.02;
+
+            // Coverage type
+            if (data.coverage === 'comprehensive') premium *= 1.5;
+            else if (data.coverage === 'tpft') premium *= 1.2;
+
+            // Claims history
+            premium *= (1 + data.claims * 0.25);
+
+            // Round premium
+            premium = Math.round(premium);
+
+            // Risk message
+            let riskMessage = '';
+            if (data.claims > 2) {
+                riskMessage = 'Multiple claims detected. You may benefit from our claims-free discount after 12 months.';
+            } else if (data.age < 25) {
+                riskMessage = 'Young driver premium includes additional coverage for your protection.';
+            } else {
+                riskMessage = 'Great profile! You qualify for our best rates.';
+            }
+
+            // Show result
+            document.getElementById('premiumValue').textContent = `$${premium.toLocaleString()}`;
+            document.getElementById('riskMessage').textContent = riskMessage;
+            document.getElementById('resultModal').style.display = 'flex';
+        });
+
+        function closeModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

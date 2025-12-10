@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karbima Agency - ML Intelligence Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-secondary: #1e293b;
+            --dark-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #475569;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Top Nav */
+        .top-nav {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Tabs */
+        .nav-tabs {
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--text-secondary);
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary);
+            background: transparent;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        /* Charts */
+        .chart-card {
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .chart-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        /* ML Badge */
+        .ml-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Segment Pills */
+        .segment-pill {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .segment-gold {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 2px solid var(--warning);
+        }
+
+        .segment-risk {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        .segment-stable {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        .segment-standard {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Table */
+        .ml-table {
+            width: 100%;
+            color: var(--text-primary);
+        }
+
+        .ml-table th {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+        }
+
+        .ml-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .ml-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Risk Indicator */
+        .risk-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .risk-critical {
+            background: var(--danger);
+        }
+
+        .risk-high {
+            background: var(--warning);
+        }
+
+        .risk-medium {
+            background: var(--primary);
+        }
+
+        .risk-low {
+            background: var(--success);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span class="brand">
+                    <i class="fas fa-brain"></i> Karbima Agency ML Intelligence
+                </span>
+                <span class="ml-badge" id="mlStatus">AI POWERED</span>
+            </div>
+            <div>
+                <a href="agent.html" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid" style="padding: 2rem; max-width: 1800px; margin: 0 auto;">
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" id="mlTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#churn" type="button">
+                    <i class="fas fa-exclamation-triangle"></i> Churn Prevention
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#claims" type="button">
+                    <i class="fas fa-file-invoice-dollar"></i> Claims Intelligence
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#segments" type="button">
+                    <i class="fas fa-users"></i> Customer Segments
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="mlTabContent">
+            <!-- Churn Prevention Tab -->
+            <div class="tab-pane fade show active" id="churn">
+                <div class="stats-grid">
+                    <div class="stat-card glass">
+                        <div class="stat-value" id="avgChurn">---</div>
+                        <div class="stat-label">Avg Churn Risk</div>
+                    </div>
+                    <div class="stat-card glass">
+                        <div class="stat-value" id="criticalCount">---</div>
+                        <div class="stat-label">Critical Risk</div>
+                    </div>
+                    <div class="stat-card glass">
+                        <div class="stat-value" id="totalRiskValue">---</div>
+                        <div class="stat-label">At-Risk Premium</div>
+                    </div>
+                </div>
+
+                <div class="glass chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-scatter"></i> Churn Risk Heatmap
+                        <span class="chart-subtitle">Bubble size = Premium value</span>
+                    </div>
+                    <canvas id="churnHeatmap" style="height: 400px;"></canvas>
+                </div>
+
+                <div class="glass chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-list"></i> Top 20 Priority Customers
+                        <span class="chart-subtitle">Sorted by Risk × Premium Value</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="ml-table">
+                            <thead>
+                                <tr>
+                                    <th>Risk</th>
+                                    <th>Customer ID</th>
+                                    <th>Churn Prob.</th>
+                                    <th>Premium</th>
+                                    <th>Risk Value</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="priorityTable">
+                                <tr>
+                                    <td colspan="6" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claims Intelligence Tab -->
+            <div class="tab-pane fade" id="claims">
+                <div class="stats-grid">
+                    <div class="stat-card glass">
+                        <div class="stat-value" id="expectedClaims">---</div>
+                        <div class="stat-label">Expected Claims</div>
+                    </div>
+                    <div class="stat-card glass">
+                        <div class="stat-value" id="claimsReserve">---</div>
+                        <div class="stat-label">Reserve Needed</div>
+                    </div>
+                </div>
+
+                <div class="glass chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-bar"></i> Claims Probability Distribution
+                    </div>
+                    <canvas id="claimsDistribution" style="height: 350px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Customer Segments Tab -->
+            <div class="tab-pane fade" id="segments">
+                <div class="glass chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-pie"></i> Portfolio Segmentation
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="segmentPie" style="height: 350px;"></canvas>
+                        </div>
+                        <div class="col-md-6" id="segmentDetails">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        const API_ML = `${API_BASE}/api/v1/agent/ml`;
+
+        // Check ML status
+        async function checkMLStatus() {
+            try {
+                const response = await fetch(`${API_ML}/info`);
+                const data = await response.json();
+                const badge = document.getElementById('mlStatus');
+
+                if (data.ml_enabled) {
+                    badge.textContent = `AI POWERED (${data.models_loaded} models)`;
+                    badge.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                } else {
+                    badge.textContent = 'ML OFFLINE';
+                    badge.style.background = '#ef4444';
+                }
+            } catch (error) {
+                console.error('ML status check failed:', error);
+            }
+        }
+
+        // Load Churn Prevention Data
+        async function loadChurnData() {
+            try {
+                const response = await fetch(`${API_ML}/churn-predictions?limit=50`);
+                const data = await response.json();
+                const predictions = data.predictions;
+
+                // Calculate stats
+                const avgChurn = (predictions.reduce((sum, p) => sum + p.churn_probability, 0) / predictions.length * 100).toFixed(1);
+                const criticalCount = predictions.filter(p => p.risk_category === 'Critical').length;
+                const totalRiskValue = predictions.reduce((sum, p) => sum + (p.risk_weighted_value || 0), 0);
+
+                document.getElementById('avgChurn').textContent = `${avgChurn}%`;
+                document.getElementById('criticalCount').textContent = criticalCount;
+                document.getElementById('totalRiskValue').textContent = `$${(totalRiskValue / 1000).toFixed(0)}K`;
+
+                // Create heatmap (bubble chart)
+                const ctx = document.getElementById('churnHeatmap').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bubble',
+                    data: {
+                        datasets: [{
+                            label: 'Customers',
+                            data: predictions.slice(0, 30).map(p => ({
+                                x: Math.random() * 365, // Days to renewal (simulated)
+                                y: p.churn_probability * 100,
+                                r: Math.sqrt(p.premium || 0) / 5
+                            })),
+                            backgroundColor: predictions.slice(0, 30).map(p =>
+                                p.risk_category === 'Critical' ? 'rgba(239, 68, 68, 0.6)' :
+                                    p.risk_category === 'High' ? 'rgba(245, 158, 11, 0.6)' :
+                                        'rgba(59, 130, 246, 0.6)'
+                            )
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Days to Renewal', color: '#94a3b8' },
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#94a3b8' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Churn Probability (%)', color: '#94a3b8' },
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#94a3b8' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+
+                // Populate priority table
+                const tableBody = document.getElementById('priorityTable');
+                tableBody.innerHTML = '';
+
+                predictions.slice(0, 20).forEach(p => {
+                    const riskClass = p.risk_category.toLowerCase();
+                    const row = `
+                        <tr>
+                            <td><span class="risk-indicator risk-${riskClass}"></span></td>
+                            <td>${p.customer_id}</td>
+                            <td>${(p.churn_probability * 100).toFixed(1)}%</td>
+                            <td>$${p.premium.toFixed(2)}</td>
+                            <td>$${p.risk_weighted_value.toFixed(2)}</td>
+                            <td style="font-size: 0.85rem; color: var(--text-secondary);">${p.recommended_action}</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+
+            } catch (error) {
+                console.error('Failed to load churn data:', error);
+            }
+        }
+
+        // Load Claims Data
+        async function loadClaimsData() {
+            try {
+                const response = await fetch(`${API_ML}/claims-forecast?limit=100`);
+                const data = await response.json();
+
+                document.getElementById('expectedClaims').textContent = data.total_policies_analyzed;
+                document.getElementById('claimsReserve').textContent = `$${(data.total_expected_claims_cost / 1000).toFixed(0)}K`;
+
+                // Create distribution chart
+                const ranges = ['0-10%', '10-20%', '20-30%', '30-40%', '40%+'];
+                const counts = [0, 0, 0, 0, 0];
+
+                data.forecast.forEach(f => {
+                    const prob = f.claim_probability;
+                    if (prob < 0.1) counts[0]++;
+                    else if (prob < 0.2) counts[1]++;
+                    else if (prob < 0.3) counts[2]++;
+                    else if (prob < 0.4) counts[3]++;
+                    else counts[4]++;
+                });
+
+                const ctx = document.getElementById('claimsDistribution').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ranges,
+                        datasets: [{
+                            label: 'Number of Policies',
+                            data: counts,
+                            backgroundColor: 'rgba(139, 92, 246, 0.6)',
+                            borderColor: 'rgba(139, 92, 246, 1)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#94a3b8' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#94a3b8' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Failed to load claims data:', error);
+            }
+        }
+
+        // Load Segments Data
+        async function loadSegmentsData() {
+            try {
+                const response = await fetch(`${API_ML}/customer-segments`);
+                const data = await response.json();
+                const segments = data.segments;
+
+                const labels = Object.keys(segments);
+                const counts = labels.map(l => segments[l].count);
+
+                // Pie chart
+                const ctx = document.getElementById('segmentPie').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: counts,
+                            backgroundColor: [
+                                'rgba(245, 158, 11, 0.8)',
+                                'rgba(239, 68, 68, 0.8)',
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(59, 130, 246, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#f1f5f9', font: { size: 12 } }
+                            }
+                        }
+                    }
+                });
+
+                // Segment details
+                const detailsDiv = document.getElementById('segmentDetails');
+                detailsDiv.innerHTML = '<h5 style="margin-bottom: 1.5rem;">Segment Breakdown</h5>';
+
+                Object.entries(segments).forEach(([name, info]) => {
+                    const segClass = name.includes('Gold') ? 'gold' :
+                        name.includes('At-Risk') ? 'risk' :
+                            name.includes('Stable') ? 'stable' : 'standard';
+
+                    detailsDiv.innerHTML += `
+                        <div style="margin-bottom: 1.5rem;">
+                            <span class="segment-pill segment-${segClass}">${name}</span>
+                            <div style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                                <div>${info.count} customers • $${info.total_premium.toFixed(0)} total premium</div>
+                                <div>Avg churn: ${(info.avg_churn_prob * 100).toFixed(1)}%</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+            } catch (error) {
+                console.error('Failed to load segments data:', error);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkMLStatus();
+            loadChurnData();
+            loadClaimsData();
+            loadSegmentsData();
+        });
+    </script>
+</body>
+
+</html>
