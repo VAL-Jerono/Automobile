@@ -526,3 +526,249 @@ document.getElementById('customerSearch')?.addEventListener('input', (e) => {
 console.log('✓ Admin dashboard initialized');
 console.log(`✓ Loaded ${dashboardData?.totalCustomers.toLocaleString()} customer records`);
 console.log(`✓ Tracking ${dashboardData?.activePolicies.toLocaleString()} active policies`);
+
+// ==================== AI ASSISTANT FUNCTIONS ====================
+
+let aiQueryCount = 0;
+let aiRiskCount = 0;
+let aiRecommendCount = 0;
+
+// Main AI Query Function
+async function askAI() {
+    const queryInput = document.getElementById('aiQuery');
+    const query = queryInput.value.trim();
+    
+    if (!query) {
+        alert('Please enter a question');
+        return;
+    }
+    
+    // Add user message to chat
+    addMessageToChat('user', query);
+    queryInput.value = '';
+    
+    // Show loading message
+    const loadingId = addMessageToChat('ai', 'Thinking<span class="loading-dots"></span>', true);
+    
+    try {
+        const response = await fetch(`${API_V1}/llm/underwriter-assist`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: query })
+        });
+        
+        if (!response.ok) throw new Error('AI service unavailable');
+        
+        const data = await response.json();
+        
+        // Remove loading message and add real response
+        document.querySelector(`[data-message-id="${loadingId}"]`)?.remove();
+        addMessageToChat('ai', data.answer);
+        
+        // Update stats
+        aiQueryCount++;
+        updateAIStats();
+        
+        // Log interaction
+        logAIInteraction('Query', query);
+        
+    } catch (error) {
+        console.error('AI query failed:', error);
+        document.querySelector(`[data-message-id="${loadingId}"]`)?.remove();
+        addMessageToChat('ai', '⚠️ Sorry, I\'m having trouble connecting. Please try again.');
+    }
+}
+
+// Quick Risk Assessment
+async function quickRiskAssessment() {
+    const policyId = document.getElementById('policyIdRisk').value;
+    
+    if (!policyId) {
+        alert('Please enter a Policy ID');
+        return;
+    }
+    
+    addMessageToChat('user', `Assess risk for Policy #${policyId}`);
+    const loadingId = addMessageToChat('ai', 'Analyzing risk<span class="loading-dots"></span>', true);
+    
+    try {
+        // Mock policy data - in production, fetch from database
+        const policyData = {
+            policy_id: policyId,
+            make_model: "2019 Toyota Camry",
+            age: "6 years",
+            power: "203 HP",
+            fuel_type: "Petrol",
+            value: "$22,000",
+            claims_last_year: 0
+        };
+        
+        const response = await fetch(`${API_V1}/llm/assess-risk`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ policy_data: policyData })
+        });
+        
+        if (!response.ok) throw new Error('Risk assessment failed');
+        
+        const data = await response.json();
+        
+        document.querySelector(`[data-message-id="${loadingId}"]`)?.remove();
+        addMessageToChat('ai', `
+            <strong>Risk Level: ${data.risk_level.toUpperCase()}</strong><br>
+            ${data.assessment}
+        `);
+        
+        aiRiskCount++;
+        updateAIStats();
+        logAIInteraction('Risk Assessment', `Policy ${policyId}`);
+        
+    } catch (error) {
+        console.error('Risk assessment failed:', error);
+        document.querySelector(`[data-message-id="${loadingId}"]`)?.remove();
+        addMessageToChat('ai', '⚠️ Risk assessment unavailable. Check API connection.');
+    }
+}
+
+// Explain Decision
+async function explainDecision() {
+    const policyId = document.getElementById('policyIdDecision').value;
+    const decision = document.getElementById('decisionType').value;
+    
+    if (!policyId) {
+        alert('Please enter a Policy ID');
+        return;
+    }
+    
+    addMessageToChat('user', `Explain ${decision} decision for Policy #${policyId}`);
+    const loadingId = addMessageToChat('ai', 'Generating explanation<span class="loading-dots"></span>', true);
+    
+    try {
+        const reason = decision === 'approved' ? 'approved based on good risk profile' : 
+                      decision === 'denied' ? 'denied due to high risk factors' : 
+                      'under review for additional information';
+        
+        const response = await fetch(`${API_V1}/llm/explain-decision?policy_id=${policyId}&decision=${decision}&reason=${reason}`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Explanation failed');
+        
+        const data = await response.json();
+        
+        document.querySelector(`[data-message-id="${loadingId}"]`)?.remove();
+        addMessageToChat('ai', data.explanation);
+        
+        aiQueryCount++;
+        updateAIStats();
+        logAIInteraction('Decision Explanation', `Policy ${policyId} - ${decision}`);
+        
+    } catch (error) {
+        console.error('Explanation failed:', error);
+        document.querySelector(`[data-message-id="${loadingId}"]`)?.remove();
+        addMessageToChat('ai', '⚠️ Unable to generate explanation. Please try again.');
+    }
+}
+
+// Get Recommendation
+async function getRecommendation() {
+    const profileText = document.getElementById('customerProfile').value.trim();
+    
+    if (!profileText) {
+        alert('Please enter customer information');
+        return;
+    }
+    
+    addMessageToChat('user', `Get policy recommendation for: ${profileText}`);
+    const loadingId = addMessageToChat('ai', 'Analyzing profile<span class="loading-dots"></span>', true);
+    
+    try {
+        const customerProfile = {
+            description: profileText,
+            age: 35,
+            vehicle: "sedan",
+            claims_history: "0"
+        };
+        
+        const response = await fetch(`${API_V1}/llm/recommend-policy`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customer_profile: customerProfile })
+        });
+        
+        if (!response.ok) throw new Error('Recommendation failed');
+        
+        const data = await response.json();
+        
+        document.querySelector(`[data-message-id="${loadingId}"]`)?.remove();
+        addMessageToChat('ai', `
+            <strong>Policy Recommendation:</strong><br>
+            ${data.recommendation}
+        `);
+        
+        aiRecommendCount++;
+        updateAIStats();
+        logAIInteraction('Recommendation', profileText.substring(0, 50));
+        
+    } catch (error) {
+        console.error('Recommendation failed:', error);
+        document.querySelector(`[data-message-id="${loadingId}"]`)?.remove();
+        addMessageToChat('ai', '⚠️ Unable to generate recommendation. Please try again.');
+    }
+}
+
+// Helper Functions
+function addMessageToChat(type, content, isLoading = false) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageId = Date.now();
+    const messageDiv = document.createElement('div');
+    messageDiv.className = type === 'user' ? 'user-message' : 'ai-message';
+    messageDiv.setAttribute('data-message-id', messageId);
+    
+    const avatar = type === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+    const name = type === 'user' ? 'You' : 'AI Assistant';
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+            <strong>${name}</strong>
+            <p>${content}</p>
+        </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    return messageId;
+}
+
+function updateAIStats() {
+    document.getElementById('aiQueriesCount').textContent = aiQueryCount;
+    document.getElementById('aiRiskCount').textContent = aiRiskCount;
+    document.getElementById('aiRecommendCount').textContent = aiRecommendCount;
+}
+
+function logAIInteraction(type, query) {
+    const table = document.getElementById('aiHistoryTable');
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString();
+    
+    // Remove "no interactions" row if present
+    if (table.rows.length === 1 && table.rows[0].cells.length === 1) {
+        table.innerHTML = '';
+    }
+    
+    const row = table.insertRow(0);
+    row.innerHTML = `
+        <td>${timeStr}</td>
+        <td>Admin User</td>
+        <td><span class="badge bg-primary">${type}</span></td>
+        <td>${query.substring(0, 50)}${query.length > 50 ? '...' : ''}</td>
+        <td><span class="badge bg-success">Success</span></td>
+    `;
+    
+    // Keep only last 10 interactions
+    while (table.rows.length > 10) {
+        table.deleteRow(10);
+    }
+}

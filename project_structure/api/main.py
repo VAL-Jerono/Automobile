@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 import pandas as pd
-from api.routes import predictions, explanations, rag, model_mgmt
+from api.routes import predictions, explanations, rag, model_mgmt, llm, documents
 from api.dependencies import init_models, init_rag
 import uvicorn
 
@@ -47,6 +47,8 @@ app.include_router(predictions.router, prefix="/api/v1/predict", tags=["predicti
 app.include_router(explanations.router, prefix="/api/v1/explain", tags=["explanations"])
 app.include_router(rag.router, prefix="/api/v1/rag", tags=["rag"])
 app.include_router(model_mgmt.router, prefix="/api/v1/models", tags=["model_management"])
+app.include_router(llm.router, prefix="/api/v1/llm", tags=["llm"])
+app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
 
 # Root endpoint
 @app.get("/", tags=["root"])

@@ -14,7 +14,6 @@ except ImportError:
     
 try:
     import chromadb
-    from chromadb.config import Settings
     CHROMADB_AVAILABLE = True
 except ImportError:
     CHROMADB_AVAILABLE = False
@@ -31,7 +30,7 @@ class RAGEngine:
     """
     
     def __init__(self, embedding_model: str = 'sentence-transformers/all-MiniLM-L6-v2',
-                 vector_db_path: str = './vector_db', similarity_threshold: float = 0.7):
+                 vector_db_path: str = './vector_db', similarity_threshold: float = 0.2):
         if not SENTENCE_TRANSFORMERS_AVAILABLE or not CHROMADB_AVAILABLE:
             logger.warning("RAG dependencies not available - RAGEngine will not function")
             self.embedding_model = None
@@ -45,14 +44,21 @@ class RAGEngine:
         self.similarity_threshold = similarity_threshold
         
         # Initialize ChromaDB
-        settings = Settings(
-            chroma_db_impl="duckdb+parquet",
-            persist_directory=vector_db_path,
-            anonymized_telemetry=False
-        )
-        self.client = chromadb.Client(settings)
-        self.policy_collection = None
-        self.claims_collection = None
+        # Initialize ChromaDB
+        self.client = chromadb.PersistentClient(path=vector_db_path)
+        
+        # Try to load existing collections
+        try:
+            self.policy_collection = self.client.get_collection(name="policies")
+            logger.info("Loaded existing 'policies' collection")
+        except Exception:
+            self.policy_collection = None
+            
+        try:
+            self.claims_collection = self.client.get_collection(name="claims")
+            logger.info("Loaded existing 'claims' collection")
+        except Exception:
+            self.claims_collection = None
     
     def index_policies(self, df_policies: pd.DataFrame):
         """Index policy documents in vector DB."""
@@ -205,5 +211,5 @@ class RAGEngine:
     
     def persist(self):
         """Persist vector DB to disk."""
-        self.client.persist()
+        # PersistentClient saves automatically
         logger.info("✓ Vector DB persisted")

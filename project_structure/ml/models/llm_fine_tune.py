@@ -65,7 +65,7 @@ class OllamaFineTuner:
                     "stream": False,
                     "num_predict": max_tokens
                 },
-                timeout=30
+                timeout=120
             )
             
             if response.status_code == 200:

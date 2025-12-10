@@ -123,6 +123,9 @@ project_structure/
 │   │   ├── embeddings.py        # Sentence-transformer pipeline
 │   │   ├── vector_store.py      # ChromaDB integration
 │   │   └── retrieval.py         # RAG query engine
+│   ├── vision/
+│   │   ├── ocr_engine.py        # OCR document processing
+│   │   └── excel_crm.py         # Excel CRM management
 │   ├── preprocessing.py          # Feature engineering
 │   ├── train_pipeline.py         # End-to-end training
 │   ├── evaluate.py              # Metrics & evaluation
@@ -133,10 +136,20 @@ project_structure/
 │   │   ├── predictions.py       # Prediction endpoints
 │   │   ├── explanations.py      # LLM explanation endpoints
 │   │   ├── rag.py              # RAG query endpoints
+│   │   ├── documents.py        # OCR document upload API
 │   │   └── model_mgmt.py       # Model management
 │   ├── schemas.py               # Pydantic models
 │   ├── dependencies.py          # Dependency injection
 │   └── utils.py                 # Helper functions
+├── uploads/
+│   ├── documents/               # Uploaded customer documents
+│   └── processed/               # OCR-processed files
+├── crm/                         # Agent Excel CRM files
+├── frontend/
+│   └── brokerage/
+│       ├── index.html           # Customer portal (Karbima Care)
+│       ├── agent-portal.html    # Agent dashboard
+│       └── admin-portal.html    # Admin dashboard
 ├── monitoring/
 │   ├── mlflow_tracking.py       # MLflow integration
 │   ├── prometheus_metrics.py    # Prometheus setup
@@ -193,6 +206,36 @@ tuner = OllamaFineTuner(base_model='llama2', method='LoRA')
 tuner.train(insurance_texts, lora_rank=8)
 explanation = tuner.generate("Explain claim denial for policy #456")
 ```
+
+### OCR Document Processing (Vision Module)
+```python
+# ml/vision/ocr_engine.py
+from ml.vision import InsuranceDocumentOCR, ExcelCRMManager
+
+# Process uploaded documents
+ocr = InsuranceDocumentOCR()
+result = ocr.process_document('/uploads/logbook.pdf')
+# Returns: {
+#   'document_type': 'logbook',
+#   'extracted_data': {'registration_number': 'KDA 123A', 'owner': '...'},
+#   'confidence': 0.94
+# }
+
+# Update agent's Excel CRM
+crm = ExcelCRMManager('./crm')
+crm.add_document_record(
+    agent_code='KBC-001',
+    customer_info={'name': 'John Doe', 'email': '...'},
+    document_info=result
+)
+```
+
+**Supported Document Types:**
+- **Vehicle Logbook** - Extracts registration, chassis, engine number
+- **National ID** - Extracts ID number, name, date of birth
+- **Driving License** - Extracts license class, expiry date
+- **Insurance Proposals** - Extracts coverage details
+- **Vehicle Photos** - Visual inspection storage
 
 ### FastAPI Endpoints
 ```python

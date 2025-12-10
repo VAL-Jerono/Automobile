@@ -1,0 +1,10 @@
+/.venv
+/venv
+
+project_structure/venv/
+venv/
+*/venv/
+__pycache__/
+*.pyc
+.DS_Store
+.idea/      

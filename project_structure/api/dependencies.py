@@ -9,12 +9,13 @@ from functools import lru_cache
 _HEAVY_IMPORTS_PERFORMED = False
 
 def _lazy_imports():
-    global _HEAVY_IMPORTS_PERFORMED, InsuranceEnsembleModel, RAGEngine, OllamaFineTuner
+    global _HEAVY_IMPORTS_PERFORMED, InsuranceEnsembleModel, RAGEngine, OllamaFineTuner, RAGGenerator
     if _HEAVY_IMPORTS_PERFORMED:
         return
     from ml.models.ensemble import InsuranceEnsembleModel
     from ml.rag.retrieval import RAGEngine
     from ml.models.llm_fine_tune import OllamaFineTuner
+    from ml.rag.generation import RAGGenerator
     _HEAVY_IMPORTS_PERFORMED = True
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 _ensemble_model = None
 _rag_engine = None
 _llm_engine = None
+_rag_generator = None
 
 async def init_models():
     """Stub initialization for models on startup.
@@ -83,3 +85,15 @@ def get_llm_engine() -> 'OllamaFineTuner':
             logger.error(f"Failed to instantiate LLM engine: {e}")
             raise
     return _llm_engine
+
+def get_rag_generator() -> 'RAGGenerator':
+    """Get RAG generator instance, performing lazy import/initialization."""
+    global _rag_generator
+    if _rag_generator is None:
+        _lazy_imports()
+        try:
+            _rag_generator = RAGGenerator()
+        except Exception as e:
+            logger.error(f"Failed to instantiate RAG generator: {e}")
+            raise
+    return _rag_generator

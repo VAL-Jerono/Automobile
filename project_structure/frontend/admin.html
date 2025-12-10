@@ -40,6 +40,9 @@
                 <a href="#ml" class="nav-item" data-section="ml">
                     <i class="fas fa-brain"></i> ML Insights
                 </a>
+                <a href="#ai-assistant" class="nav-item" data-section="ai-assistant">
+                    <i class="fas fa-robot"></i> AI Assistant
+                </a>
             </nav>
             
             <div class="sidebar-footer">
@@ -489,6 +492,143 @@
                             </div>
                             <div class="card-body">
                                 <canvas id="modelPerformanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- AI Assistant Section -->
+                <section id="section-ai-assistant" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-robot text-primary"></i> AI Underwriting Assistant</h2>
+                        <p class="text-muted">Powered by Ollama LLM - Real-time insurance AI support</p>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- AI Chat Interface -->
+                        <div class="col-lg-8">
+                            <div class="ai-chat-card">
+                                <div class="chat-header">
+                                    <div>
+                                        <h5><i class="fas fa-comments"></i> Ask the AI Assistant</h5>
+                                        <small class="text-muted">Get instant answers to underwriting questions</small>
+                                    </div>
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-circle pulse"></i> Online
+                                    </span>
+                                </div>
+                                
+                                <div class="chat-messages" id="chatMessages">
+                                    <div class="ai-message">
+                                        <div class="message-avatar">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div class="message-content">
+                                            <strong>AI Assistant</strong>
+                                            <p>Hello! I'm your AI underwriting assistant powered by Ollama. I can help you with:</p>
+                                            <ul>
+                                                <li>Risk assessments for policies</li>
+                                                <li>Policy recommendations</li>
+                                                <li>Underwriting decisions explanation</li>
+                                                <li>Claims analysis</li>
+                                                <li>General insurance questions</li>
+                                            </ul>
+                                            <p>How can I assist you today?</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="chat-input-area">
+                                    <div class="input-group">
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="aiQuery" 
+                                               placeholder="Ask me anything about insurance, risk, or policies..."
+                                               onkeypress="if(event.key==='Enter') askAI()">
+                                        <button class="btn btn-primary" onclick="askAI()">
+                                            <i class="fas fa-paper-plane"></i> Ask AI
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="col-lg-4">
+                            <div class="ai-tools-card">
+                                <h5><i class="fas fa-magic"></i> Quick AI Tools</h5>
+                                
+                                <div class="tool-section">
+                                    <h6>Risk Assessment</h6>
+                                    <input type="number" class="form-control form-control-sm mb-2" id="policyIdRisk" placeholder="Policy ID">
+                                    <button class="btn btn-outline-primary btn-sm w-100" onclick="quickRiskAssessment()">
+                                        <i class="fas fa-shield-alt"></i> Assess Risk
+                                    </button>
+                                </div>
+                                
+                                <div class="tool-section">
+                                    <h6>Explain Decision</h6>
+                                    <input type="number" class="form-control form-control-sm mb-2" id="policyIdDecision" placeholder="Policy ID">
+                                    <select class="form-select form-select-sm mb-2" id="decisionType">
+                                        <option value="approved">Approved</option>
+                                        <option value="denied">Denied</option>
+                                        <option value="review">Under Review</option>
+                                    </select>
+                                    <button class="btn btn-outline-success btn-sm w-100" onclick="explainDecision()">
+                                        <i class="fas fa-file-alt"></i> Generate Explanation
+                                    </button>
+                                </div>
+                                
+                                <div class="tool-section">
+                                    <h6>Policy Recommendation</h6>
+                                    <textarea class="form-control form-control-sm mb-2" id="customerProfile" rows="3" placeholder="Customer info: age, vehicle, claims..."></textarea>
+                                    <button class="btn btn-outline-info btn-sm w-100" onclick="getRecommendation()">
+                                        <i class="fas fa-lightbulb"></i> Get Recommendation
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="ai-stats-card mt-3">
+                                <h6>AI Usage Today</h6>
+                                <div class="stat-row">
+                                    <span>Queries Answered</span>
+                                    <strong id="aiQueriesCount">0</strong>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Risk Assessments</span>
+                                    <strong id="aiRiskCount">0</strong>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Recommendations</span>
+                                    <strong id="aiRecommendCount">0</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent AI Interactions -->
+                    <div class="chart-card mt-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-history"></i> Recent AI Interactions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>User</th>
+                                            <th>Query Type</th>
+                                            <th>Query</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="aiHistoryTable">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No interactions yet</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

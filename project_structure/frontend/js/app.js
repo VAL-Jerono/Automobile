@@ -368,3 +368,84 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+
+// AI Vehicle Check Function (Customer Portal)
+async function checkVehicleWithAI() {
+    const btn = document.getElementById('aiCheckBtn');
+    const resultDiv = document.getElementById('aiAssessmentResult');
+    const assessmentText = document.getElementById('aiAssessmentText');
+    const assessmentStatus = document.getElementById('aiAssessmentStatus');
+    
+    // Get vehicle info
+    const make = document.getElementById('vehicleMake').value;
+    const model = document.getElementById('vehicleModel').value;
+    const year = document.getElementById('vehicleYear').value;
+    const power = document.querySelector('input[name="power"]').value || 150;
+    const fuelType = document.querySelector('select[name="type_fuel"]').value || 'P';
+    
+    // Validate inputs
+    if (!make || !model || !year) {
+        showNotification('Please enter vehicle make, model, and year', 'error');
+        return;
+    }
+    
+    // Show loading state
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking with AI...';
+    resultDiv.style.display = 'none';
+    
+    try {
+        // Call AI API
+        const response = await fetch(`${API_V1}/llm/check-vehicle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                make: make,
+                model: model,
+                year: parseInt(year),
+                fuel_type: fuelType,
+                power: parseInt(power),
+                usage: 'personal',
+                customer_age: 35  // Could get from step 1
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('AI service unavailable');
+        }
+        
+        const data = await response.json();
+        
+        // Display result
+        assessmentText.textContent = data.assessment;
+        
+        if (data.can_proceed_to_quote) {
+            assessmentStatus.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Good News!</strong> ${data.message}
+                </div>
+            `;
+        } else {
+            assessmentStatus.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Notice:</strong> ${data.message}
+                </div>
+            `;
+        }
+        
+        resultDiv.style.display = 'block';
+        showNotification('AI assessment complete!', 'success');
+        
+    } catch (error) {
+        console.error('AI check failed:', error);
+        showNotification('AI service is temporarily unavailable. You can continue with the quote.', 'error');
+    } finally {
+        // Restore button
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-robot"></i> Check My Vehicle with AI';
+    }
+}

@@ -194,11 +194,49 @@
                             <!-- Step 2: Vehicle Information -->
                             <div class="form-step" data-step="2">
                                 <h4 class="mb-4">Tell us about your vehicle</h4>
+                                
+                                <!-- AI Vehicle Check Feature -->
+                                <div class="alert alert-primary mb-4">
+                                    <i class="fas fa-robot"></i>
+                                    <strong>New! AI Vehicle Check</strong> - Get instant AI-powered insurability assessment
+                                </div>
+                                
                                 <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Year of Manufacture</label>
-                                        <input type="number" class="form-control" name="year_matriculation" min="1990" max="2025" required>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Vehicle Make</label>
+                                        <input type="text" class="form-control" id="vehicleMake" name="vehicle_make" placeholder="e.g., Toyota, BMW">
                                     </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Vehicle Model</label>
+                                        <input type="text" class="form-control" id="vehicleModel" name="vehicle_model" placeholder="e.g., Camry, X5">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Year of Manufacture</label>
+                                        <input type="number" class="form-control" id="vehicleYear" name="year_matriculation" min="1990" max="2025" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-info btn-lg w-100" id="aiCheckBtn" onclick="checkVehicleWithAI()">
+                                            <i class="fas fa-robot"></i> Check My Vehicle with AI
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- AI Assessment Result -->
+                                <div id="aiAssessmentResult" class="ai-assessment-box" style="display: none;">
+                                    <div class="assessment-header">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                        <h5>AI Assessment Complete</h5>
+                                    </div>
+                                    <div class="assessment-content">
+                                        <p id="aiAssessmentText"></p>
+                                        <div class="assessment-status" id="aiAssessmentStatus"></div>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-4">
+                                <h5 class="mb-3">Additional Vehicle Details</h5>
+                                
+                                <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Fuel Type</label>
                                         <select class="form-select" name="type_fuel" required>

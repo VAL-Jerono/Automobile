@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Karbima Care Insurance Brokers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --secondary: #198754;
+            --accent: #ffc107;
+            --danger: #dc3545;
+            --dark: #1a1a2e;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f6f9;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-header h3 i {
+            color: var(--accent);
+        }
+
+        .sidebar-header span {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        .nav-section {
+            padding: 1rem 1.5rem 0.5rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.5;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border-left-color: var(--accent);
+        }
+
+        .nav-item i { width: 20px; text-align: center; }
+
+        .nav-item .badge {
+            margin-left: auto;
+            background: var(--danger);
+            font-size: 0.65rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        /* Cards */
+        .stat-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+
+        .stat-card.gradient-primary {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            color: #fff;
+        }
+
+        .stat-card.gradient-success {
+            background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+            color: #fff;
+        }
+
+        .stat-card.gradient-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #fff;
+        }
+
+        .stat-card.gradient-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: #fff;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background: none;
+            border-bottom: 1px solid #eee;
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-body { padding: 1.5rem; }
+
+        /* Tables */
+        .table th {
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #666;
+            border-top: none;
+        }
+
+        .table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.pending { background: #fff3cd; color: #856404; }
+        .status-badge.approved { background: #d4edda; color: #155724; }
+        .status-badge.rejected { background: #f8d7da; color: #721c24; }
+        .status-badge.processing { background: #cce5ff; color: #004085; }
+
+        /* Insurer Cards */
+        .insurer-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .insurer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .insurer-logo {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .insurer-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .insurer-stats {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* ML Dashboard */
+        .ml-model-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .ml-model-card h5 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ml-model-card .accuracy {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .ml-model-card .metric-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Fraud Alert */
+        .fraud-alert {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .fraud-alert i {
+            font-size: 1.5rem;
+        }
+
+        .fraud-alert .info h6 {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .fraud-alert .info p {
+            margin: 0;
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .fraud-alert .score {
+            margin-left: auto;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-shield-alt"></i> Karbima Care Admin</h3>
+            <span>Brokerage Management System</span>
+        </div>
+
+        <nav>
+            <div class="nav-section">Overview</div>
+            <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+
+            <div class="nav-section">Business Management</div>
+            <a href="#underwriting" class="nav-item" data-section="underwriting">
+                <i class="fas fa-file-signature"></i> Underwriting
+                <span class="badge">24</span>
+            </a>
+            <a href="#policies" class="nav-item" data-section="policies">
+                <i class="fas fa-file-contract"></i> All Policies
+            </a>
+            <a href="#claims" class="nav-item" data-section="claims">
+                <i class="fas fa-clipboard-list"></i> Claims
+                <span class="badge">7</span>
+            </a>
+            <a href="#renewals" class="nav-item" data-section="renewals">
+                <i class="fas fa-sync-alt"></i> Renewals
+            </a>
+
+            <div class="nav-section">Network</div>
+            <a href="#agents" class="nav-item" data-section="agents">
+                <i class="fas fa-user-tie"></i> Agents
+            </a>
+            <a href="#customers" class="nav-item" data-section="customers">
+                <i class="fas fa-users"></i> Customers
+            </a>
+            <a href="#insurers" class="nav-item" data-section="insurers">
+                <i class="fas fa-building"></i> Insurers
+            </a>
+
+            <div class="nav-section">AI & Analytics</div>
+            <a href="#ml-models" class="nav-item" data-section="ml-models">
+                <i class="fas fa-brain"></i> ML Models
+            </a>
+            <a href="#fraud" class="nav-item" data-section="fraud">
+                <i class="fas fa-exclamation-triangle"></i> Fraud Detection
+                <span class="badge bg-danger">3</span>
+            </a>
+            <a href="#analytics" class="nav-item" data-section="analytics">
+                <i class="fas fa-chart-pie"></i> Analytics
+            </a>
+
+            <div class="nav-section">System</div>
+            <a href="#documents" class="nav-item" data-section="documents">
+                <i class="fas fa-folder"></i> Documents
+            </a>
+            <a href="#settings" class="nav-item" data-section="settings">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <h4>Admin Dashboard</h4>
+            <div class="d-flex align-items-center gap-3">
+                <a href="index.html" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-home"></i> Main Site
+                </a>
+                <a href="agent-portal.html" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-user-tie"></i> Agent Portal
+                </a>
+                <img src="https://ui-avatars.com/api/?name=Admin&background=1a1a2e&color=fff" 
+                     alt="Admin" style="width:35px; border-radius:50%">
+            </div>
+        </header>
+
+        <div class="content-area">
+            <!-- Dashboard Section -->
+            <section id="section-dashboard" class="content-section">
+                <!-- KPI Row - Accurate from Data Analysis -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card gradient-primary">
+                            <div class="stat-label">Total Policies</div>
+                            <div class="stat-value">105,555</div>
+                            <small>In dataset</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card gradient-success">
+                            <div class="stat-label">Retention Rate</div>
+                            <div class="stat-value">80.8%</div>
+                            <small>19.2% churn rate</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card gradient-warning">
+                            <div class="stat-label">Claims Filed</div>
+                            <div class="stat-value">18.6%</div>
+                            <small>7,366 claims total</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card gradient-danger">
+                            <div class="stat-label">High Risk Policies</div>
+                            <div class="stat-value">79%</div>
+                            <small>Risk category 3</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Charts -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-chart-area me-2"></i>Premium Volume by Insurer</span>
+                                <select class="form-select form-select-sm" style="width:auto">
+                                    <option>This Month</option>
+                                    <option>Last 3 Months</option>
+                                    <option>This Year</option>
+                                </select>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="premiumChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Underwriting Queue -->
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-file-signature me-2"></i>Underwriting Queue
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Reference</th>
+                                            <th>Customer</th>
+                                            <th>Agent</th>
+                                            <th>Cover</th>
+                                            <th>Insurer</th>
+                                            <th>Premium</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>KBC-2024-0891</strong></td>
+                                            <td>Safari Tours Ltd</td>
+                                            <td>John Mwangi</td>
+                                            <td>Comprehensive (PSV)</td>
+                                            <td>Jubilee</td>
+                                            <td>Rate: 6.5%</td>
+                                            <td><span class="status-badge pending">Pending Docs</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary">Review</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>KBC-2024-0890</strong></td>
+                                            <td>Mary Wanjiku</td>
+                                            <td>Grace Akinyi</td>
+                                            <td>Comprehensive</td>
+                                            <td>Britam</td>
+                                            <td>Rate: 5.2%</td>
+                                            <td><span class="status-badge processing">Under Review</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">View</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>KBC-2024-0889</strong></td>
+                                            <td>Cargo Movers Ltd</td>
+                                            <td>Peter Kamau</td>
+                                            <td>Commercial</td>
+                                            <td>CIC</td>
+                                            <td>Rate: 5.8%</td>
+                                            <td><span class="status-badge approved">Approved</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-success">Issue</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-lg-4">
+                        <!-- Insurer Distribution -->
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-building me-2"></i>Insurer Distribution
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" style="height:200px">
+                                    <canvas id="insurerChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cover Type Breakdown -->
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-shield-alt me-2"></i>Cover Types
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Comprehensive</span>
+                                    <strong>58%</strong>
+                                </div>
+                                <div class="progress mb-3" style="height:8px">
+                                    <div class="progress-bar bg-primary" style="width:58%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Third Party F&T</span>
+                                    <strong>27%</strong>
+                                </div>
+                                <div class="progress mb-3" style="height:8px">
+                                    <div class="progress-bar bg-success" style="width:27%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Third Party Only</span>
+                                    <strong>15%</strong>
+                                </div>
+                                <div class="progress" style="height:8px">
+                                    <div class="progress-bar bg-warning" style="width:15%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-clock me-2"></i>Recent Activity
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex gap-2 mb-3">
+                                    <div class="bg-success rounded-circle p-2" style="width:35px;height:35px;display:flex;align-items:center;justify-content:center">
+                                        <i class="fas fa-check text-white fa-sm"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">2 mins ago</small>
+                                        <p class="mb-0 small">Policy VC-2024-0888 issued</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mb-3">
+                                    <div class="bg-primary rounded-circle p-2" style="width:35px;height:35px;display:flex;align-items:center;justify-content:center">
+                                        <i class="fas fa-file text-white fa-sm"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">15 mins ago</small>
+                                        <p class="mb-0 small">New application from Agent Grace</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 mb-3">
+                                    <div class="bg-warning rounded-circle p-2" style="width:35px;height:35px;display:flex;align-items:center;justify-content:center">
+                                        <i class="fas fa-sync text-white fa-sm"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">1 hour ago</small>
+                                        <p class="mb-0 small">8 renewals processed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ML Models Section -->
+            <section id="section-ml-models" class="content-section" style="display:none">
+                <h4 class="mb-4"><i class="fas fa-brain me-2"></i>Machine Learning Models</h4>
+                
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="ml-model-card">
+                            <h5><i class="fas fa-user-times me-2"></i>Churn Prediction v2.0</h5>
+                            <div class="accuracy">82.9%</div>
+                            <small>ROC-AUC Score</small>
+                            <div class="metric-row">
+                                <span>Recall: 66.2%</span>
+                                <span>Precision: 50.1%</span>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>Model Details</h6>
+                                <p class="small text-muted">VotingClassifier (RF + GB + LR) with SMOTE oversampling and threshold optimization</p>
+                                <p class="small mb-2"><strong>Use Case:</strong> Identify 66% of customers likely to lapse</p>
+                                <p class="small mb-2"><strong>Features:</strong> 25 (Policy_Age, Claims_History, etc.)</p>
+                                <p class="small mb-0"><strong>File:</strong> churn_model_20251209_094706.pkl</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="ml-model-card" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
+                            <h5><i class="fas fa-file-invoice-dollar me-2"></i>Lifecycle Claim Probability</h5>
+                            <div class="accuracy">87.9%</div>
+                            <small>ROC-AUC Score</small>
+                            <div class="metric-row">
+                                <span>Accuracy: 84%</span>
+                                <span>Recall: 56%</span>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>Model Details</h6>
+                                <p class="small text-muted">GradientBoostingClassifier with policy lifecycle stages</p>
+                                <p class="small mb-2"><strong>Use Case:</strong> Predict claim likelihood by lifecycle (New/Growing/Mature/Long-term)</p>
+                                <p class="small mb-2"><strong>Features:</strong> 23 lifecycle-aware features</p>
+                                <p class="small mb-0"><strong>File:</strong> lifecycle_claim_model_20251209_094706.pkl</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="ml-model-card" style="background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);">
+                            <h5><i class="fas fa-clock me-2"></i>Cox Survival Analysis</h5>
+                            <div class="accuracy">59.8%</div>
+                            <small>C-Index Score</small>
+                            <div class="metric-row">
+                                <span>Train: 60.0%</span>
+                                <span>Test: 59.8%</span>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>Model Details</h6>
+                                <p class="small text-muted">Cox Proportional Hazards for time-to-claim prediction</p>
+                                <p class="small mb-2"><strong>Use Case:</strong> Predict WHEN claims will occur, not just IF</p>
+                                <p class="small mb-2"><strong>Insight:</strong> Reserve timing & capacity planning</p>
+                                <p class="small mb-0"><strong>File:</strong> survival_model_20251209_094706.pkl</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Statistics - Accurate from Analysis -->
+                <div class="row g-4 mt-2">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-database me-2"></i>Training Data Statistics
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td>Total Records</td>
+                                        <td><strong>105,555</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Features Used</td>
+                                        <td><strong>25-28 engineered</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date Range</td>
+                                        <td><strong>Nov 2013 - Nov 2019</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Churn/Lapse Rate</td>
+                                        <td><strong>19.2%</strong> (20,008 policies)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Claims Rate</td>
+                                        <td><strong>18.6%</strong> of policies file claims</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Risk Distribution</td>
+                                        <td><strong>Low 8%, Med 13%, High 79%, VH 1%</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Avg Premium</td>
+                                        <td><strong>€315.89</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-chart-pie me-2"></i>Claims Type Distribution
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm">
+                                    <tr><td>Travel Assistance</td><td><strong>56.4%</strong> (4,156 claims)</td></tr>
+                                    <tr><td>Complaints</td><td><strong>17.2%</strong> (1,266 claims)</td></tr>
+                                    <tr><td>Broken Windows</td><td><strong>10.0%</strong> (735 claims)</td></tr>
+                                    <tr><td>Negligence</td><td><strong>9.8%</strong> (722 claims)</td></tr>
+                                    <tr><td>All Risks</td><td><strong>4.9%</strong> (362 claims)</td></tr>
+                                    <tr><td>Theft/Injuries/Fire/Other</td><td><strong>1.7%</strong> (125 claims)</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-4 mt-2">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-cogs me-2"></i>Model Integration Status
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span>Churn Model API</span>
+                                            <span class="badge bg-success">Active</span>
+                                        </div>
+                                        <small class="text-muted">churn_model_20251209_094706.pkl (80 MB)</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span>Claims Prediction API</span>
+                                            <span class="badge bg-success">Active</span>
+                                        </div>
+                                        <small class="text-muted">lifecycle_claim_model.pkl (1.7 MB)</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span>RAG Knowledge Base</span>
+                                            <span class="badge bg-warning">105,555 docs indexed</span>
+                                        </div>
+                                        <small class="text-muted">vector_db/ (289 MB)</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span>Survival Analysis</span>
+                                            <span class="badge bg-info">Active</span>
+                                        </div>
+                                        <small class="text-muted">survival_model.pkl (9.5 MB)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fraud Detection Section -->
+            <section id="section-fraud" class="content-section" style="display:none">
+                <h4 class="mb-4"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Fraud Detection Alerts</h4>
+                
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="fraud-alert">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div class="info">
+                                <h6>Suspicious Claim Pattern - VC-2024-0876</h6>
+                                <p>Multiple claims within 30 days of policy inception. Vehicle: KBZ 999X</p>
+                            </div>
+                            <div class="score">92%</div>
+                            <button class="btn btn-sm btn-light">Investigate</button>
+                        </div>
+
+                        <div class="fraud-alert">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div class="info">
+                                <h6>Document Anomaly - VC-2024-0865</h6>
+                                <p>Logbook details mismatch with KRA records. Customer: James Omondi</p>
+                            </div>
+                            <div class="score">87%</div>
+                            <button class="btn btn-sm btn-light">Investigate</button>
+                        </div>
+
+                        <div class="fraud-alert" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);">
+                            <i class="fas fa-exclamation-triangle text-dark"></i>
+                            <div class="info">
+                                <h6 class="text-dark">High-Risk Application - VC-2024-0882</h6>
+                                <p class="text-dark">New customer, high-value vehicle, claims history from other insurer</p>
+                            </div>
+                            <div class="score text-dark">71%</div>
+                            <button class="btn btn-sm btn-dark">Review</button>
+                        </div>
+
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <i class="fas fa-history me-2"></i>Recent Fraud Investigations
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Reference</th>
+                                            <th>Type</th>
+                                            <th>Risk Score</th>
+                                            <th>Outcome</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>VC-2024-0845</td>
+                                            <td>Staged Accident</td>
+                                            <td><span class="text-danger">89%</span></td>
+                                            <td><span class="status-badge rejected">Confirmed Fraud</span></td>
+                                            <td>Dec 5, 2025</td>
+                                        </tr>
+                                        <tr>
+                                            <td>VC-2024-0832</td>
+                                            <td>Inflated Claim</td>
+                                            <td><span class="text-warning">65%</span></td>
+                                            <td><span class="status-badge approved">False Positive</span></td>
+                                            <td>Dec 3, 2025</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-chart-pie me-2"></i>Fraud Statistics
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" style="height:200px">
+                                    <canvas id="fraudChart"></canvas>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Total Flagged (2024)</span>
+                                    <strong>47</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Confirmed Fraud</span>
+                                    <strong class="text-danger">12</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Savings</span>
+                                    <strong class="text-success">KES 4.2M</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Insurers Section -->
+            <section id="section-insurers" class="content-section" style="display:none">
+                <h4 class="mb-4"><i class="fas fa-building me-2"></i>Insurance Partners</h4>
+                
+                <div class="row g-4">
+                    <div class="col-md-2">
+                        <div class="insurer-card">
+                            <div class="insurer-logo">🏆</div>
+                            <div class="insurer-name">Jubilee</div>
+                            <div class="insurer-stats">
+                                <strong>12,450</strong> policies<br>
+                                <small class="text-success">+15% this month</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="insurer-card">
+                            <div class="insurer-logo">🔵</div>
+                            <div class="insurer-name">Britam</div>
+                            <div class="insurer-stats">
+                                <strong>10,230</strong> policies<br>
+                                <small class="text-success">+8% this month</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="insurer-card">
+                            <div class="insurer-logo">🟢</div>
+                            <div class="insurer-name">APA</div>
+                            <div class="insurer-stats">
+                                <strong>8,920</strong> policies<br>
+                                <small class="text-success">+12% this month</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="insurer-card">
+                            <div class="insurer-logo">🟡</div>
+                            <div class="insurer-name">CIC</div>
+                            <div class="insurer-stats">
+                                <strong>7,845</strong> policies<br>
+                                <small class="text-warning">+2% this month</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="insurer-card">
+                            <div class="insurer-logo">🔴</div>
+                            <div class="insurer-name">UAP</div>
+                            <div class="insurer-stats">
+                                <strong>6,500</strong> policies<br>
+                                <small class="text-success">+5% this month</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="insurer-card">
+                            <div class="insurer-logo">🟣</div>
+                            <div class="insurer-name">Madison</div>
+                            <div class="insurer-stats">
+                                <strong>4,700</strong> policies<br>
+                                <small class="text-success">+10% this month</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.dataset.section;
+                
+                document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+                document.getElementById('section-' + section).style.display = 'block';
+                
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Premium Chart
+            new Chart(document.getElementById('premiumChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jubilee', 'Britam', 'APA', 'CIC', 'UAP', 'Madison'],
+                    datasets: [{
+                        label: 'Premium Volume (KES M)',
+                        data: [45.2, 38.5, 32.1, 28.7, 22.4, 18.9],
+                        backgroundColor: [
+                            '#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d', '#6f42c1'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Insurer Distribution
+            new Chart(document.getElementById('insurerChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Jubilee', 'Britam', 'APA', 'CIC', 'Others'],
+                    datasets: [{
+                        data: [25, 20, 18, 15, 22],
+                        backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Fraud Chart (for fraud section)
+            if (document.getElementById('fraudChart')) {
+                new Chart(document.getElementById('fraudChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Confirmed', 'False Positive', 'Under Review'],
+                        datasets: [{
+                            data: [12, 28, 7],
+                            backgroundColor: ['#dc3545', '#198754', '#ffc107']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
