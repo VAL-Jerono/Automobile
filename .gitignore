@@ -11,6 +11,13 @@ vector_db/
 *.xlsx
 *.png
 
+enhanced_faiss_index/
+vector_db/
+models/
+*.faiss
+*.pkl
+
+
 AI_ASSISTANT_FEATURE.md
 AI_ASSISTANT_FIX_SUMMARY.md
 AI_PROMPTS_REFERENCE.md
