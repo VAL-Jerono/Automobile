@@ -1,23 +1,51 @@
+# Python virtual environments
 .venv/
 venv/
-enhanced_faiss_index/
+env/
+ENV/
+
+# Python cache
 __pycache__/
-*.log
-.DS_Store
-Motor_vehicle_insurance_data.csv
-models/
-vector_db/
-.ipynb_checkpoints/
-*.xlsx
-*.png
+*.pyc
+*.pyo
+*.pyd
+.Python
 
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Data files
+Motor_vehicle_insurance_data.csv
+*.csv
+*.xlsx
+
+# Model files and vector databases
+models/
+*.pkl
+*.faiss
+*.h5
+*.pt
+*.pth
 enhanced_faiss_index/
 vector_db/
-models/
-*.faiss
-*.pkl
 
+# Images
+*.png
+*.jpg
+*.jpeg
 
+# MLflow
+mlruns/
+
+# Project documentation (temporary/internal)
 AI_ASSISTANT_FEATURE.md
 AI_ASSISTANT_FIX_SUMMARY.md
 AI_PROMPTS_REFERENCE.md
@@ -28,6 +56,9 @@ README_PROJECT.md
 create_research_notebook.py
 fix_notebook.py
 launch_app.sh
+
+# Directories
 project_structure/
 visualizations/
-*.ipynb
+uploads/
+model_outputs/
