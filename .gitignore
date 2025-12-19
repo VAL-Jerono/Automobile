@@ -1,164 +1,24 @@
-# ===========================================
-# Automobile Claims Platform - .gitignore
-# ===========================================
-
-# -------------------------------------------
-# LARGE DATA FILES (>50MB)
-# -------------------------------------------
-# Main dataset (14MB)
-Motor_vehicle_insurance_data.csv
-Motor vehicle insurance data.csv
-
-# Vector database (289MB) - FAISS indexes
-vector_db/
-*.faiss
-*.index
-
-# Trained models (183MB)
-models/
-*.pkl
-*.joblib
-*.h5
-*.pt
-*.pth
-*.onnx
-
-# -------------------------------------------
-# SENSITIVE/PRIVATE DATA
-# -------------------------------------------
-# Excel files with variable descriptions
-Descriptive_of_the_variables.xlsx
-
-# Sample claim data
-sample_type_claim.csv
-
-# Any raw data folders
-data/
-raw_data/
-
-# Environment files with secrets
-.env
-.env.local
-.env.*.local
-*.env
-
-# API keys and credentials
-credentials/
-secrets/
-*.pem
-*.key
-
-# -------------------------------------------
-# PYTHON VIRTUAL ENVIRONMENTS
-# -------------------------------------------
 .venv/
 venv/
-env/
-ENV/
-.Python
-pip-log.txt
-pip-delete-this-directory.txt
-
-# -------------------------------------------
-# PYTHON CACHE & COMPILED FILES
-# -------------------------------------------
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# -------------------------------------------
-# JUPYTER NOTEBOOK
-# -------------------------------------------
-.ipynb_checkpoints/
-*/.ipynb_checkpoints/*
-*.ipynb_checkpoints
-
-# Notebook output (optional - uncomment if needed)
-# *.ipynb
-
-# -------------------------------------------
-# IDE & EDITOR FILES
-# -------------------------------------------
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.project
-.pydevproject
-.settings/
-*.sublime-project
-*.sublime-workspace
-
-# -------------------------------------------
-# OS GENERATED FILES
-# -------------------------------------------
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-*.bak
-
-# -------------------------------------------
-# LOGS & TEMPORARY FILES
-# -------------------------------------------
 *.log
-train_output.log
-train_quick.log
-logs/
-tmp/
-temp/
-
-# -------------------------------------------
-# TEST & COVERAGE
-# -------------------------------------------
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# -------------------------------------------
-# CHROMADB (backup vector store)
-# -------------------------------------------
-chroma_db/
-chromadb/
-*.chroma
-
-# -------------------------------------------
-# OPTIONAL: Keep visualizations for sharing
-# Uncomment below to exclude visualizations
-# -------------------------------------------
-# visualizations/
-
-# -------------------------------------------
-# OPTIONAL: Large notebook (uncomment if too big)
-# -------------------------------------------
-# Insurance_Agent_Platform_Methodology.ipynb
+.DS_Store
+Motor_vehicle_insurance_data.csv
+models/
+vector_db/
+.ipynb_checkpoints/
+*.xlsx
+*.png
+AI_ASSISTANT_FEATURE.md
+AI_ASSISTANT_FIX_SUMMARY.md
+AI_PROMPTS_REFERENCE.md
+APP_IMPROVEMENTS.md
+QUICK_REFERENCE.txt
+README_old.md
+README_PROJECT.md
+create_research_notebook.py
+fix_notebook.py
+launch_app.sh
+project_structure/
+visualizations/
+*.ipynb

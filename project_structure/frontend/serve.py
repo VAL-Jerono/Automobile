@@ -30,8 +30,8 @@ if __name__ == "__main__":
 ║  Customer Portal:  http://localhost:{PORT}                ║
 ║  Admin Dashboard:  http://localhost:{PORT}/admin.html     ║
 ║                                                                ║
-║  API Server:       http://localhost:8001                       ║
-║  API Docs:         http://localhost:8001/docs                  ║
+║  API Server:       http://localhost:8000                       ║
+║  API Docs:         http://localhost:8000/docs                  ║
 ║                                                                ║
 ╠════════════════════════════════════════════════════════════════╣
 ║  Features:                                                     ║

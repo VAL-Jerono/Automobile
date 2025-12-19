@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:8001';
+const API_BASE_URL = 'http://localhost:8000';
 const API_V1 = `${API_BASE_URL}/api/v1`;
 
 // Animate counter numbers
@@ -20,9 +20,14 @@ function animateCounter(element, target) {
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Fetch database statistics
-        const response = await fetch(`${API_BASE_URL}/health`);
+        const response = await fetch(`${API_BASE_URL}/api/v1/stats/dashboard`); // Corrected endpoint
         if (response.ok) {
-            // Animate counters with realistic numbers
+            const data = await response.json();
+            // Animate counters if data available
+            if (data.customers) animateCounter(document.getElementById('customerCount'), data.customers);
+            if (data.policies) animateCounter(document.getElementById('policyCount'), data.policies);
+        } else {
+            // Fallback
             animateCounter(document.getElementById('customerCount'), 191480);
             animateCounter(document.getElementById('policyCount'), 52645);
         }
@@ -37,6 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeQuoteForm();
     initializeRenewalForm();
     initializeClaimsForm();
+    initializeGenericChat(); // New Chat
 });
 
 // Multi-step Quote Form Logic
@@ -75,14 +81,14 @@ function initializeQuoteForm() {
         // Show loading state
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="loading"></span> Calculating...';
+        submitBtn.innerHTML = '<span class="loading"></span> Calculating with AI...';
         submitBtn.disabled = true;
 
         try {
-            // Calculate quote using ML model
+            // Calculate quote using ML model API
             const quote = await calculateQuote(data);
             displayQuoteResults(quote);
-            
+
             // Scroll to results
             document.getElementById('quoteResults').scrollIntoView({ behavior: 'smooth' });
         } catch (error) {
@@ -120,77 +126,95 @@ function initializeQuoteForm() {
     }
 }
 
-// Calculate quote and predict lapse risk
+// Calculate quote directly from API
 async function calculateQuote(formData) {
-    // Calculate estimated premium based on risk factors
-    const basePremium = 800;
-    let premium = basePremium;
+    // Construct request body matching QuoteRequest Pydantic model
+    const payload = {
+        cover_type: formData.type_risk || "comprehensive", // mapped
+        vehicle_use: "private", // default or add field to form
+        vehicle_value: parseFloat(formData.value_vehicle),
+        vehicle_year: parseInt(formData.year_matriculation || 2020),
+        engine_cc: parseInt(formData.cylinder_capacity || 1500),
+        driver_age: calculateAge(formData.date_birth),
+        driving_experience: calculateAge(formData.date_driving_licence), // rough estimate
+        previous_claims: parseInt(formData.n_claims_history || 0),
+        vehicle_make: formData.vehicle_make,
+        vehicle_model: formData.vehicle_model,
+        fuel_type: mapFuelType(formData.type_fuel),
 
-    // Age factor
-    const birthDate = new Date(formData.date_birth);
-    const age = Math.floor((new Date() - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
-    if (age < 25) premium *= 1.5;
-    else if (age > 65) premium *= 1.2;
-
-    // Vehicle factors
-    const vehicleAge = new Date().getFullYear() - parseInt(formData.year_matriculation);
-    premium *= (1 + vehicleAge * 0.02);
-    
-    if (formData.type_fuel === 'E') premium *= 0.9; // Electric discount
-    premium *= (1 + parseInt(formData.power) / 1000);
-
-    // Claims history
-    premium *= (1 + parseInt(formData.n_claims_history) * 0.3);
-    premium *= (1 + parseInt(formData.n_claims_year) * 0.5);
-
-    // Coverage type
-    if (formData.type_risk === 'COMP') premium *= 1.5;
-    else if (formData.type_risk === 'COLL') premium *= 1.3;
-
-    // Vehicle value
-    premium *= (1 + parseInt(formData.value_vehicle) / 50000);
-
-    // Round to nearest 10
-    premium = Math.round(premium / 10) * 10;
-
-    // Calculate lapse risk using simple heuristics (in production, use ML API)
-    let lapseRisk = 0.1;
-    if (parseInt(formData.n_claims_history) > 2) lapseRisk += 0.3;
-    if (premium > 2000) lapseRisk += 0.2;
-    if (vehicleAge > 10) lapseRisk += 0.15;
-    if (age < 25) lapseRisk += 0.1;
-    
-    lapseRisk = Math.min(lapseRisk, 0.95);
-
-    // Determine risk level
-    let riskLevel = 'low';
-    if (lapseRisk > 0.6) riskLevel = 'high';
-    else if (lapseRisk > 0.3) riskLevel = 'medium';
-
-    // Generate recommendation
-    let recommendation = '';
-    if (riskLevel === 'low') {
-        recommendation = 'Excellent! You qualify for our premium rates with low lapse risk. We recommend proceeding with this policy.';
-    } else if (riskLevel === 'medium') {
-        recommendation = 'Good profile with moderate risk. Consider adding additional coverage or adjusting payment terms for better rates.';
-    } else {
-        recommendation = 'Higher risk profile detected. We recommend reviewing your claims history and considering risk-reduction measures for better rates.';
-    }
-
-    return {
-        premium,
-        lapseRisk,
-        riskLevel,
-        recommendation,
-        formData
+        // Additional ML fields
+        n_claims_history: parseInt(formData.n_claims_history || 0),
+        n_claims_year: parseInt(formData.n_claims_year || 0),
+        power: parseInt(formData.power || 100),
+        weight: parseInt(formData.weight || 1000)
     };
+
+    try {
+        const response = await fetch(`${API_V1}/quote`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        // Transform API response to match UI needs
+        // API returns multiple quotes/insurers, we take the best one or display generic
+        const bestQuote = result.quotes[0]; // Cheapest
+
+        return {
+            premium: bestQuote.premium,
+            lapseRisk: result.churn_probability || 0.1,
+            riskLevel: result.risk_level.toLowerCase(),
+            recommendation: generateRecommendation(result.risk_level, result.churn_probability),
+            formData: formData,
+            mlConfidence: result.ml_confidence,
+            insurerName: bestQuote.insurer_name
+        };
+
+    } catch (error) {
+        console.error("API Call Failed", error);
+        throw error;
+    }
+}
+
+// Helpers
+function calculateAge(dateString) {
+    if (!dateString) return 30; // default
+    const today = new Date();
+    const birthDate = new Date(dateString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
+function mapFuelType(code) {
+    const map = { 'P': 'petrol', 'D': 'diesel', 'E': 'electric', 'H': 'hybrid' };
+    return map[code] || 'petrol';
+}
+
+function generateRecommendation(riskLevel, churnProb) {
+    if (riskLevel === 'Low' || riskLevel === 'low') {
+        return 'Excellent! You qualify for our premium rates with low risk. We recommend proceeding with this policy.';
+    } else if (riskLevel === 'Medium' || riskLevel === 'medium') {
+        return 'Good profile with moderate risk. Consider adding additional coverage for better long-term protection.';
+    } else {
+        return 'Higher risk profile detected. We have adjusted the premium accordingly. Call us for a review.';
+    }
 }
 
 // Display quote results
 function displayQuoteResults(quote) {
     const resultsDiv = document.getElementById('quoteResults');
     const formContainer = document.querySelector('.quote-form-container form');
-    
+
     // Hide form, show results
     formContainer.style.display = 'none';
     resultsDiv.style.display = 'block';
@@ -201,9 +225,9 @@ function displayQuoteResults(quote) {
     // Update risk gauge
     const gaugeFill = document.querySelector('.gauge-fill');
     const riskLabel = document.getElementById('riskLabel');
-    
+
     gaugeFill.className = `gauge-fill ${quote.riskLevel}`;
-    
+
     let riskText = '';
     let riskColor = '';
     if (quote.riskLevel === 'low') {
@@ -216,7 +240,7 @@ function displayQuoteResults(quote) {
         riskText = 'High Risk - Review Needed';
         riskColor = 'text-danger';
     }
-    
+
     riskLabel.innerHTML = `<span class="${riskColor}">${riskText}</span><br><small>${(quote.lapseRisk * 100).toFixed(1)}% lapse probability</small>`;
 
     // Update recommendation
@@ -230,7 +254,7 @@ function resetForm() {
     document.getElementById('quoteForm').reset();
     document.querySelector('.quote-form-container form').style.display = 'block';
     document.getElementById('quoteResults').style.display = 'none';
-    
+
     // Reset to step 1
     document.querySelectorAll('.form-step').forEach((step, index) => {
         step.classList.toggle('active', index === 0);
@@ -253,13 +277,13 @@ function applyForPolicy() {
 // Renewal form handler
 function initializeRenewalForm() {
     const form = document.getElementById('renewalForm');
-    
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        
+
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<span class="loading"></span> Checking...';
@@ -268,7 +292,7 @@ function initializeRenewalForm() {
         try {
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
+
             const resultsDiv = document.getElementById('renewalResults');
             resultsDiv.style.display = 'block';
             resultsDiv.innerHTML = `
@@ -278,13 +302,13 @@ function initializeRenewalForm() {
                     <hr>
                     <p><strong>Current Premium:</strong> $1,250/year</p>
                     <p><strong>Renewal Premium:</strong> $1,180/year (5% loyalty discount)</p>
-                    <p><strong>Renewal Date:</strong> ${new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString()}</p>
+                    <p><strong>Renewal Date:</strong> ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}</p>
                     <button class="btn btn-success mt-3" onclick="processRenewal()">
                         <i class="fas fa-check"></i> Renew Now
                     </button>
                 </div>
             `;
-            
+
             showNotification('Renewal information retrieved successfully!', 'success');
         } catch (error) {
             showNotification('Failed to retrieve renewal information.', 'error');
@@ -306,13 +330,13 @@ function processRenewal() {
 // Claims form handler
 function initializeClaimsForm() {
     const form = document.getElementById('claimsForm');
-    
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        
+
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<span class="loading"></span> Submitting...';
@@ -321,14 +345,14 @@ function initializeClaimsForm() {
         try {
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 2000));
-            
+
             const claimNumber = 'CLM' + Math.random().toString(36).substr(2, 9).toUpperCase();
-            
+
             showNotification(
                 `Claim submitted successfully! Your claim number is ${claimNumber}. An adjuster will contact you within 48 hours.`,
                 'success'
             );
-            
+
             form.reset();
         } catch (error) {
             showNotification('Failed to submit claim. Please try again.', 'error');
@@ -347,9 +371,9 @@ function showNotification(message, type = 'success') {
         <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
         ${message}
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.remove();
     }, 5000);
@@ -375,25 +399,25 @@ async function checkVehicleWithAI() {
     const resultDiv = document.getElementById('aiAssessmentResult');
     const assessmentText = document.getElementById('aiAssessmentText');
     const assessmentStatus = document.getElementById('aiAssessmentStatus');
-    
+
     // Get vehicle info
     const make = document.getElementById('vehicleMake').value;
     const model = document.getElementById('vehicleModel').value;
     const year = document.getElementById('vehicleYear').value;
     const power = document.querySelector('input[name="power"]').value || 150;
     const fuelType = document.querySelector('select[name="type_fuel"]').value || 'P';
-    
+
     // Validate inputs
     if (!make || !model || !year) {
         showNotification('Please enter vehicle make, model, and year', 'error');
         return;
     }
-    
+
     // Show loading state
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking with AI...';
     resultDiv.style.display = 'none';
-    
+
     try {
         // Call AI API
         const response = await fetch(`${API_V1}/llm/check-vehicle`, {
@@ -411,16 +435,16 @@ async function checkVehicleWithAI() {
                 customer_age: 35  // Could get from step 1
             })
         });
-        
+
         if (!response.ok) {
             throw new Error('AI service unavailable');
         }
-        
+
         const data = await response.json();
-        
+
         // Display result
         assessmentText.textContent = data.assessment;
-        
+
         if (data.can_proceed_to_quote) {
             assessmentStatus.innerHTML = `
                 <div class="alert alert-success">
@@ -436,10 +460,10 @@ async function checkVehicleWithAI() {
                 </div>
             `;
         }
-        
+
         resultDiv.style.display = 'block';
         showNotification('AI assessment complete!', 'success');
-        
+
     } catch (error) {
         console.error('AI check failed:', error);
         showNotification('AI service is temporarily unavailable. You can continue with the quote.', 'error');

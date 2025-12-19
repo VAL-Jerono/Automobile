@@ -83,6 +83,12 @@ class RAGEngine:
             Premium: ${row['premium']:.2f}
             Claims History: {row['n_claims_history']}
             Lapse Status: {'Yes' if row['lapse'] else 'No'}
+            
+            --- ANALYTICS ---
+            Customer Segment: {row.get('Segment', 'Unknown')}
+            Churn Risk Score: {row.get('Churn_Score', 0):.2f}
+            Claims Risk Probability: {row.get('Risk_Score', 0):.2f}
+            Customer Lifetime Value (CLV): €{row.get('CLV', 0):.2f}
             """
             
             docs.append(doc_text)

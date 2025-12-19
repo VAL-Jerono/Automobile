@@ -27,14 +27,19 @@ def main():
         return
 
     # Load Data
-    csv_path = 'Motor vehicle insurance data.csv'
+    # Prefer enriched data if available
+    csv_path = 'Enriched_Motor_Data.csv'
     if not os.path.exists(csv_path):
-        # Try with underscores
         csv_path = 'Motor_vehicle_insurance_data.csv'
         
     if not os.path.exists(csv_path):
         # Try finding it in data/raw
-        csv_path = 'data/raw/Motor_vehicle_insurance_data.csv'
+        if os.path.exists('data/raw/Motor_vehicle_insurance_data.csv'):
+            csv_path = 'data/raw/Motor_vehicle_insurance_data.csv'
+        elif os.path.exists('../../Motor_vehicle_insurance_data.csv'):
+             csv_path = '../../Motor_vehicle_insurance_data.csv'
+        elif os.path.exists('../../Enriched_Motor_Data.csv'):
+             csv_path = '../../Enriched_Motor_Data.csv'
         
     if not os.path.exists(csv_path):
         logger.error(f"Could not find dataset at {csv_path}")
