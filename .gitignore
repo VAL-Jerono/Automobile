@@ -1,5 +1,6 @@
 .venv/
 venv/
+enhanced_faiss_index/index.pkl
 __pycache__/
 *.log
 .DS_Store
@@ -9,6 +10,7 @@ vector_db/
 .ipynb_checkpoints/
 *.xlsx
 *.png
+
 AI_ASSISTANT_FEATURE.md
 AI_ASSISTANT_FIX_SUMMARY.md
 AI_PROMPTS_REFERENCE.md
