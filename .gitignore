@@ -1,6 +1,6 @@
 .venv/
 venv/
-index.pkl
+enhanced_faiss_index/
 __pycache__/
 *.log
 .DS_Store
