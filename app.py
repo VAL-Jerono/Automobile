@@ -131,17 +131,26 @@ st.markdown("""
 def load_data():
     """Load model predictions from Auto_Analysis_Notebook export"""
     try:
-        data_path = Path('model_outputs/rag_model_predictions.csv')
+        # Check multiple possible locations for the data file
+        # 1. Relative to CWD (usually the project root if launched via launch_app.sh)
+        # 2. Relative to script directory (Automobile/..)
+        script_dir = Path(__file__).parent
+        possible_paths = [
+            script_dir / 'rag_model_predictions.csv',
+            Path('model_outputs/rag_model_predictions.csv'),
+            script_dir.parent / 'model_outputs' / 'rag_model_predictions.csv',
+            script_dir / 'model_outputs' / 'rag_model_predictions.csv'
+        ]
         
-        if not data_path.exists():
-            st.error(f"❌ Data file not found: {data_path}")
+        data_path = None
+        for path in possible_paths:
+            if path.exists():
+                data_path = path
+                break
+        
+        if data_path is None:
+            st.error(f"❌ Data file not found in searched locations: {[str(p) for p in possible_paths]}")
             st.info("💡 Please run the export cell in Auto_Analysis_Notebook.ipynb first")
-            st.code("""
-# In your notebook, run:
-df_export = df.copy()
-df_export.to_csv('model_outputs/rag_model_predictions.csv', index=False)
-print('✅ Data exported successfully!')
-            """)
             return None
             
         df = pd.read_csv(data_path)
@@ -188,10 +197,15 @@ def load_enhanced_faiss():
         from langchain_community.vectorstores import FAISS
         from langchain_community.embeddings import HuggingFaceEmbeddings
         
-        # Try both possible locations
+        # Try multiple possible locations relative to script and CWD
+        script_dir = Path(__file__).parent
         possible_paths = [
+            Path('Automobile/enhanced_faiss_index'),
+            Path('Automobile/project_structure/enhanced_faiss_index'),
+            Path('enhanced_faiss_index'),
             Path('project_structure/enhanced_faiss_index'),
-            Path('enhanced_faiss_index')
+            script_dir / 'enhanced_faiss_index',
+            script_dir / 'project_structure' / 'enhanced_faiss_index'
         ]
         
         index_path = None
@@ -201,7 +215,7 @@ def load_enhanced_faiss():
                 break
         
         if index_path is None:
-            return None, "Index directory not found. Please run project_structure/rag.ipynb Steps 1-6."
+            return None, "Index directory not found. Please run Automobile/project_structure/rag.ipynb Steps 1-6."
         
         # Load with embeddings
         embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
@@ -608,6 +622,30 @@ def show_executive_dashboard(df, metrics):
         height=400,
         showlegend=False,
         margin=dict(l=0, r=0, t=30, b=0)
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Added: Retention Risk Matrix (Value vs. Risk)
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.subheader("🎯 High-Value Retention Risk Matrix")
+    st.markdown("Precision targeting: Focus on the top-right quadrant (High Risk, High Value).")
+    
+    fig = px.scatter(
+        df.sample(min(5000, len(df))),
+        x="Customer_Lifetime_Value",
+        y="Churn_Probability",
+        color="Customer_Segment",
+        size="Premium",
+        hover_data=['ID', 'Seniority', 'N_claims_history'],
+        color_discrete_map={'PROTECT': '#00C851', 'DEVELOP': '#33b5e5', 'MANAGE': '#ffbb33', 'EXIT': '#ff4444'},
+        labels={'Customer_Lifetime_Value': 'Value (€)', 'Churn_Probability': 'Churn Risk'}
+    )
+    fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font_color="#888",
+        height=500
     )
     st.plotly_chart(fig, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1746,6 +1784,45 @@ def show_strategic_insights(df, metrics):
         
         **Strategic Recommendation:** Redirect 40% of broker acquisition budget toward agent relationship development.
         """)
+        
+    # Added: Geographic/Area Risk Distribution
+    st.markdown("---")
+    st.subheader("🌍 Area Risk & Premium Distribution")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Area Heatmap-like Treemap
+        area_stats = df.groupby('Area').agg({'Premium': 'sum', 'Churn_Probability': 'mean', 'ID': 'count'}).reset_index()
+        fig = px.treemap(
+            area_stats, 
+            path=['Area'], 
+            values='Premium',
+            color='Churn_Probability',
+            color_continuous_scale='RdYlGn_r',
+            title="Premium Volume by Area (Color = Risk Level)"
+        )
+        fig.update_layout(height=400)
+        st.plotly_chart(fig, use_container_width=True)
+        
+    with col2:
+        # Claims vs Premium by Area
+        area_claims = df.groupby('Area').agg({
+            'Claims_Probability': 'mean', 
+            'Expected_Claims_Cost': 'sum',
+            'Premium': 'sum'
+        }).reset_index()
+        area_claims['Loss_Ratio_Proxy'] = area_claims['Expected_Claims_Cost'] / area_claims['Premium']
+        
+        fig = px.bar(
+            area_claims, 
+            x='Area', 
+            y='Loss_Ratio_Proxy',
+            color='Loss_Ratio_Proxy',
+            color_continuous_scale='Reds',
+            title="Loss Ratio Proxy by Area"
+        )
+        fig.update_layout(height=400)
+        st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
     st.subheader("🧮 Live ROI Simulator")

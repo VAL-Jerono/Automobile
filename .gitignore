@@ -25,6 +25,7 @@ Thumbs.db
 # Data files
 Motor_vehicle_insurance_data.csv
 *.csv
+!rag_model_predictions.csv
 *.xlsx
 
 # Model files and vector databases
