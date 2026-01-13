@@ -129,7 +129,7 @@ def load_data():
         if project_path.exists():
             sys.path.insert(0, str(project_path))
         
-        from sql_predictions_manager import SQLModelPredictionsManager
+        from utils.sql_predictions_manager import SQLModelPredictionsManager
         
         manager = SQLModelPredictionsManager()
         if manager.connect():
@@ -404,7 +404,7 @@ def main():
         if user_q:
             try:
                 # Import RAG system
-                from rag_system import InsuranceRAGSystem
+                from scripts.rag.rag_system import InsuranceRAGSystem
                 
                 with st.spinner("🔍 Searching customer database..."):
                     rag = InsuranceRAGSystem()
