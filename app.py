@@ -405,7 +405,7 @@ def main():
         
         if user_q:
             try:
-                # Import RAG system
+                # Try to import RAG system (optional feature)
                 from scripts.rag.rag_system import InsuranceRAGSystem
                 
                 with st.spinner("🔍 Searching customer database..."):
@@ -441,11 +441,21 @@ def main():
                 else:
                     st.warning("No customers match your query criteria.")
                     
-            except ImportError:
-                st.error("❌ RAG system module not found. Make sure rag_system.py exists in the Automobile folder.")
+            except ImportError as import_err:
+                st.warning("⚠️ **RAG system not available** - Missing dependencies")
+                st.info("""
+                The natural language query feature requires additional packages not installed in this deployment.
+                
+                **To enable this feature:**
+                1. Use full `requirements.txt` instead of `requirements-cloud.txt`
+                2. This will increase build time but enable AI-powered queries
+                
+                **Alternative:** Use the filters in other sections to explore data.
+                """)
+                logger.warning(f"RAG system import failed: {import_err}")
             except Exception as e:
                 st.error(f"❌ Error processing query: {str(e)}")
-                st.code(str(e))
+                logger.error(f"RAG query error: {e}", exc_info=True)
 
     # EXPORT PAGE
     elif page == "Export":

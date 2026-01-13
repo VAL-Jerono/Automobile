@@ -1,17 +1,65 @@
 # ☁️ Cloud Deployment Guide
 
 ## Current Status
-⚠️ **App configured for cloud deployment, but database not yet set up**
+✅ **App optimized for cloud deployment with fast build times**
 
-The app runs locally with XAMPP but fails on Streamlit Cloud because there's no database connection.
+The app now has two requirement sets:
+- `requirements.txt` - Lightweight (30s build, core features only)
+- `requirements-full.txt` - Complete (5+ min build, includes AI/RAG)
 
 ---
 
-## Quick Fix: Deploy to Streamlit Cloud
+## Quick Deploy to Streamlit Cloud (Recommended)
 
-### Step 1: Set Up Cloud Database
+### Prerequisites
+✅ MySQL is running locally (XAMPP)  
+✅ Data loaded (53,502 predictions)  
+✅ Cloud database set up (see database options below)
 
-**Option A: PlanetScale (Recommended - Free Tier)**
+### Step 1: Push to GitHub
+
+```bash
+cd /Users/leonida/Documents/automobile_claims/Automobile
+git add -A
+git commit -m "feat: Optimize for cloud deployment"
+git push origin main
+```
+
+### Step 2: Deploy on Streamlit Cloud
+
+1. Go to [share.streamlit.io](https://share.streamlit.io)
+2. Click **"New app"**
+3. Configure:
+   - Repository: `VAL-Jerono/Automobile`
+   - Branch: `main`
+   - Main file path: `app.py`
+   - Python version: `3.9` (auto-detected from `.python-version`)
+
+4. Click **"Deploy"** - Build completes in ~30 seconds ⚡
+
+### Step 3: Configure Database Secrets
+
+1. In Streamlit Cloud, go to **App Settings → Secrets**
+2. Add your database configuration:
+
+```toml
+[mysql]
+host = "your-database-host.com"
+user = "your-username"
+password = "your-password"
+database = "insurance"
+port = 3306
+```
+
+3. Click **Save** and the app will restart
+
+---
+
+---
+
+## Database Setup Options
+
+### Step 1: Choose a Cloud Database
 1. Go to [planetscale.com](https://planetscale.com)
 2. Sign up and create a new database: `insurance-analytics`
 3. Create a password and save these credentials:
