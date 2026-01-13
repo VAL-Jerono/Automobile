@@ -208,7 +208,9 @@ def main():
     df = load_data()
     if df is None or df.empty:
         st.error("⚠️ Database connection failed")
-        st.info("Run: `python export_predictions_to_sql.py`")
+        st.info("**Step 1:** Start MySQL (XAMPP Control Panel)")
+        st.info("**Step 2:** Run: `python scripts/database/export_predictions_to_sql.py`")
+        st.info("**Step 3:** Refresh this page")
         st.stop()
 
     palette = {
