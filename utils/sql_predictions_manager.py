@@ -51,11 +51,24 @@ class SQLModelPredictionsManager:
             port: MySQL port (default: 3306)
         """
         # Load from environment if not provided
-        self.host = host or os.getenv('MYSQL_HOST', 'localhost')
-        self.user = user or os.getenv('MYSQL_USER', 'root')
-        self.password = password or os.getenv('MYSQL_PASSWORD', '')
-        self.database = database or os.getenv('MYSQL_DATABASE', 'insurance')
-        self.port = port
+        # Priority: 1) Direct params, 2) Streamlit secrets, 3) Environment vars, 4) Defaults
+        try:
+            import streamlit as st
+            if hasattr(st, 'secrets') and 'mysql' in st.secrets:
+                self.host = host or st.secrets['mysql'].get('host', 'localhost')
+                self.user = user or st.secrets['mysql'].get('user', 'root')
+                self.password = password or st.secrets['mysql'].get('password', '')
+                self.database = database or st.secrets['mysql'].get('database', 'insurance')
+                self.port = port or st.secrets['mysql'].get('port', 3306)
+            else:
+                raise KeyError("No secrets configured")
+        except (ImportError, KeyError):
+            # Fallback to environment variables (for local development)
+            self.host = host or os.getenv('MYSQL_HOST', 'localhost')
+            self.user = user or os.getenv('MYSQL_USER', 'root')
+            self.password = password or os.getenv('MYSQL_PASSWORD', '')
+            self.database = database or os.getenv('MYSQL_DATABASE', 'insurance')
+            self.port = port
         
         self.connection = None
         self.cursor = None

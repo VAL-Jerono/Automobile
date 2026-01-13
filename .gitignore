@@ -33,6 +33,9 @@ Motor vehicle insurance data.csv
 .env.local
 .env.*.local
 
+# Streamlit secrets - NEVER commit (configure in Streamlit Cloud instead)
+.streamlit/secrets.toml
+
 # Model files and vector databases
 models/
 *.pkl
