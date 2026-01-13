@@ -22,11 +22,16 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Data files
+# Data files - DO NOT COMMIT (Use SQL instead)
 Motor_vehicle_insurance_data.csv
+Motor vehicle insurance data.csv
 *.csv
-!rag_model_predictions.csv
 *.xlsx
+
+# .env file with credentials - NEVER commit
+.env
+.env.local
+.env.*.local
 
 # Model files and vector databases
 models/
