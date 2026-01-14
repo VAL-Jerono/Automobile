@@ -175,10 +175,14 @@ def load_data():
         project_path / "model_outputs" / "rag_model_predictions.csv",
         project_path / "rag_model_predictions.csv",
         Path("model_outputs/rag_model_predictions.csv"),
-        Path("Automobile/model_outputs/rag_model_predictions.csv")
+        Path("Automobile/model_outputs/rag_model_predictions.csv"),
+        Path("/app/Automobile/model_outputs/rag_model_predictions.csv") # Common Streamlit Cloud path
     ]
     
+    tried_paths = []
     for path in csv_paths:
+        path_str = str(path.absolute()) if path.is_absolute() else str(path)
+        tried_paths.append(path_str)
         if path.exists():
             try:
                 df = pd.read_csv(path)
@@ -186,8 +190,9 @@ def load_data():
                 return process_dataframe(df), f"Static CSV ({path.name})"
             except Exception as e:
                 logger.error(f"Error reading CSV {path}: {e}")
+                return None, f"Error reading {path.name}: {str(e)}"
     
-    return None, "No Data Found"
+    return None, f"Checked: {', '.join(tried_paths)}"
 
 
 # Load data globally for sidebar access
@@ -242,8 +247,9 @@ def main():
     
     if df is None or df.empty:
         st.error("⚠️ Data Source Unavailable")
+        st.write(f"**Diagnostic Info:** {source_info}")
         st.markdown("""
-        The application could not connect to the MySQL database or find a backup CSV file.
+        The application could not connect to the MySQL database or find a backup CSV file in the repository.
         
         ### 🔧 How to fix:
         1. **Start MySQL:** Open XAMPP Control Panel and start MySQL.
