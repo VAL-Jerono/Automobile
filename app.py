@@ -121,6 +121,33 @@ st.markdown("""
 # DATA LOADING
 # ============================================================================
 
+def process_dataframe(df):
+    """Standardize and process the predictions dataframe."""
+    # Standardize column names
+    col_map = {
+        'policy_id': 'ID',
+        'churn_probability': 'Churn_Prob',
+        'claims_probability': 'Claims_Prob',
+        'claims_severity': 'Claims_Severity',
+        'customer_lifetime_value': 'CLV',
+        'customer_segment': 'Segment',
+        'journey_quadrant': 'Journey',
+        'pricing_adequacy_flag': 'Underpriced',
+        'renewal_risk_score': 'Renewal_Risk',
+        'is_high_renewal_risk': 'High_Renewal_Risk'
+    }
+    
+    # Only rename columns that exist
+    df = df.rename(columns={k: v for k, v in col_map.items() if k in df.columns})
+    
+    # Calculate risk categories if Churn_Prob exists
+    if 'Churn_Prob' in df.columns:
+        df['Risk'] = pd.cut(df['Churn_Prob'], 
+                           bins=[0, 0.3, 0.6, 0.85, 1.1],
+                           labels=['Low', 'Medium', 'High', 'Critical'])
+    
+    return df
+
 @st.cache_data(ttl=3600)
 def load_data():
     """Load predictions from SQL database with CSV fallback."""
@@ -161,33 +188,6 @@ def load_data():
                 logger.error(f"Error reading CSV {path}: {e}")
     
     return None, "No Data Found"
-
-def process_dataframe(df):
-    """Standardize and process the predictions dataframe."""
-    # Standardize column names
-    col_map = {
-        'policy_id': 'ID',
-        'churn_probability': 'Churn_Prob',
-        'claims_probability': 'Claims_Prob',
-        'claims_severity': 'Claims_Severity',
-        'customer_lifetime_value': 'CLV',
-        'customer_segment': 'Segment',
-        'journey_quadrant': 'Journey',
-        'pricing_adequacy_flag': 'Underpriced',
-        'renewal_risk_score': 'Renewal_Risk',
-        'is_high_renewal_risk': 'High_Renewal_Risk'
-    }
-    
-    # Only rename columns that exist
-    df = df.rename(columns={k: v for k, v in col_map.items() if k in df.columns})
-    
-    # Calculate risk categories if Churn_Prob exists
-    if 'Churn_Prob' in df.columns:
-        df['Risk'] = pd.cut(df['Churn_Prob'], 
-                           bins=[0, 0.3, 0.6, 0.85, 1.1],
-                           labels=['Low', 'Medium', 'High', 'Critical'])
-    
-    return df
 
 
 # Load data globally for sidebar access
