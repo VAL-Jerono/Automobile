@@ -160,7 +160,10 @@ def load_data():
             except Exception as e:
                 logger.error(f"Error reading CSV {path}: {e}")
     
-    return None, None
+    return None, "No Data Found"
+
+# Load data globally for sidebar access
+df, source_info = load_data()
 
 def process_dataframe(df):
     """Standardize and process the predictions dataframe."""
@@ -233,8 +236,9 @@ with st.sidebar:
 
 
 def main():
-    # Load data
-    df, source_info = load_data()
+    # Use data loaded globally
+    global df, source_info
+    
     if df is None or df.empty:
         st.error("⚠️ Data Source Unavailable")
         st.markdown("""
