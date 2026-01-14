@@ -81,20 +81,21 @@ else
 fi
 
 # Step 5: Generate predictions
-echo -e "\n${YELLOW}Step 5: Generating model predictions (this takes 5-10 minutes)...${NC}"
+echo -e "\n${YELLOW}Step 5: Generating model predictions (this takes 2-5 minutes)...${NC}"
 echo "This will:"
-echo "  • Run 66 notebook cells to train ML models"
-echo "  • Generate predictions for 105,555 customers"
+echo "  • Run notebook cells to train ML models"
+echo "  • Generate predictions for customers"
 echo "  • Store results in MySQL database"
 echo ""
 
-python export_predictions_to_sql.py
+python scripts/database/export_predictions_to_sql.py
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅ Predictions generated successfully${NC}"
 else
     echo -e "${RED}❌ Prediction generation failed${NC}"
-    exit 1
+    echo "Check if MySQL is running and dependencies are installed."
+    # Don't exit here, maybe the app can still run if there's old data
 fi
 
 # Step 6: Verify data

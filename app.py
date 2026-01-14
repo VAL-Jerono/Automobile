@@ -123,44 +123,71 @@ st.markdown("""
 
 @st.cache_data(ttl=3600)
 def load_data():
-    """Load predictions from SQL database."""
+    """Load predictions from SQL database with CSV fallback."""
+    project_path = Path(__file__).parent
+    if project_path.exists():
+        sys.path.insert(0, str(project_path))
+    
+    # Method 1: Try SQL Database
     try:
-        project_path = Path(__file__).parent
-        if project_path.exists():
-            sys.path.insert(0, str(project_path))
-        
         from utils.sql_predictions_manager import SQLModelPredictionsManager
-        
         manager = SQLModelPredictionsManager()
         if manager.connect():
             df = manager.get_all_predictions()
+            info = manager.get_connection_info()
             manager.disconnect()
             
-            if not df.empty:
-                # Standardize column names
-                df = df.rename(columns={
-                    'policy_id': 'ID',
-                    'churn_probability': 'Churn_Prob',
-                    'claims_probability': 'Claims_Prob',
-                    'claims_severity': 'Claims_Severity',
-                    'customer_lifetime_value': 'CLV',
-                    'customer_segment': 'Segment',
-                    'journey_quadrant': 'Journey',
-                    'pricing_adequacy_flag': 'Underpriced',
-                    'renewal_risk_score': 'Renewal_Risk',
-                    'is_high_renewal_risk': 'High_Renewal_Risk'
-                })
-                
-                # Calculate risk categories
-                df['Risk'] = pd.cut(df['Churn_Prob'], 
-                                   bins=[0, 0.3, 0.6, 0.85, 1.0],
-                                   labels=['Low', 'Medium', 'High', 'Critical'])
-                
-                return df
+            if df is not None and not df.empty:
+                logger.info(f"✅ Loaded data from MySQL database: {info}")
+                return process_dataframe(df), f"Live SQL ({info})"
     except Exception as e:
-        logger.error(f"Load error: {e}")
+        logger.warning(f"SQL Load failed, trying CSV: {e}")
+
+    # Method 2: Try CSV Fallback
+    csv_paths = [
+        project_path / "model_outputs" / "rag_model_predictions.csv",
+        project_path / "rag_model_predictions.csv",
+        Path("model_outputs/rag_model_predictions.csv"),
+        Path("Automobile/model_outputs/rag_model_predictions.csv")
+    ]
     
-    return None
+    for path in csv_paths:
+        if path.exists():
+            try:
+                df = pd.read_csv(path)
+                logger.info(f"✅ Loaded data from CSV: {path}")
+                return process_dataframe(df), f"Static CSV ({path.name})"
+            except Exception as e:
+                logger.error(f"Error reading CSV {path}: {e}")
+    
+    return None, None
+
+def process_dataframe(df):
+    """Standardize and process the predictions dataframe."""
+    # Standardize column names
+    col_map = {
+        'policy_id': 'ID',
+        'churn_probability': 'Churn_Prob',
+        'claims_probability': 'Claims_Prob',
+        'claims_severity': 'Claims_Severity',
+        'customer_lifetime_value': 'CLV',
+        'customer_segment': 'Segment',
+        'journey_quadrant': 'Journey',
+        'pricing_adequacy_flag': 'Underpriced',
+        'renewal_risk_score': 'Renewal_Risk',
+        'is_high_renewal_risk': 'High_Renewal_Risk'
+    }
+    
+    # Only rename columns that exist
+    df = df.rename(columns={k: v for k, v in col_map.items() if k in df.columns})
+    
+    # Calculate risk categories if Churn_Prob exists
+    if 'Churn_Prob' in df.columns:
+        df['Risk'] = pd.cut(df['Churn_Prob'], 
+                           bins=[0, 0.3, 0.6, 0.85, 1.1],
+                           labels=['Low', 'Medium', 'High', 'Critical'])
+    
+    return df
 
 
 # ============================================================================
@@ -194,6 +221,8 @@ with st.sidebar:
         st.rerun()
     
     st.markdown("---")
+    st.markdown(f"<div style='font-size: 0.8rem; color: #64748b;'>Data Source: {source_info}</div>", 
+                unsafe_allow_html=True)
     st.markdown("<div style='font-size: 0.8rem; color: #64748b;'>v7.0 • Production Ready</div>", 
                 unsafe_allow_html=True)
 
@@ -205,12 +234,22 @@ with st.sidebar:
 
 def main():
     # Load data
-    df = load_data()
+    df, source_info = load_data()
     if df is None or df.empty:
-        st.error("⚠️ Database connection failed")
-        st.info("**Step 1:** Start MySQL (XAMPP Control Panel)")
-        st.info("**Step 2:** Run: `python scripts/database/export_predictions_to_sql.py`")
-        st.info("**Step 3:** Refresh this page")
+        st.error("⚠️ Data Source Unavailable")
+        st.markdown("""
+        The application could not connect to the MySQL database or find a backup CSV file.
+        
+        ### 🔧 How to fix:
+        1. **Start MySQL:** Open XAMPP Control Panel and start MySQL.
+        2. **Populate Data:** Run the export script to sync data from the research notebook:
+           ```bash
+           python Automobile/scripts/database/export_predictions_to_sql.py
+           ```
+        3. **Fallback:** If you don't want to use MySQL, ensure `rag_model_predictions.csv` exists in the `Automobile/model_outputs/` folder.
+        """)
+        if st.button("🔄 Try Again"):
+            st.rerun()
         st.stop()
 
     palette = {

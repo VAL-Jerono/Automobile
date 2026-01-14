@@ -54,16 +54,24 @@ class SQLModelPredictionsManager:
         # Priority: 1) Direct params, 2) Streamlit secrets, 3) Environment vars, 4) Defaults
         try:
             import streamlit as st
+            # Try to access secrets, but don't fail if not in Streamlit context
             if hasattr(st, 'secrets') and 'mysql' in st.secrets:
-                self.host = host or st.secrets['mysql'].get('host', 'localhost')
-                self.user = user or st.secrets['mysql'].get('user', 'root')
-                self.password = password or st.secrets['mysql'].get('password', '')
-                self.database = database or st.secrets['mysql'].get('database', 'insurance')
-                self.port = port or st.secrets['mysql'].get('port', 3306)
+                # Check if secrets contain real values or just placeholders
+                s = st.secrets['mysql']
+                if s.get('host') and "your-database-host" not in s.get('host'):
+                    self.host = host or s.get('host', 'localhost')
+                    self.user = user or s.get('user', 'root')
+                    self.password = password or s.get('password', '')
+                    self.database = database or s.get('database', 'insurance')
+                    self.port = port or s.get('port', 3306)
+                else:
+                    # Placeholders detected, use environment variables or defaults
+                    raise KeyError("Placeholder secrets detected")
             else:
-                raise KeyError("No secrets configured")
-        except (ImportError, KeyError):
-            # Fallback to environment variables (for local development)
+                # No mysql key in secrets
+                raise KeyError("No mysql key in secrets")
+        except Exception:
+            # Fallback to environment variables (for local development or if Streamlit secrets fail)
             self.host = host or os.getenv('MYSQL_HOST', 'localhost')
             self.user = user or os.getenv('MYSQL_USER', 'root')
             self.password = password or os.getenv('MYSQL_PASSWORD', '')
@@ -93,6 +101,10 @@ class SQLModelPredictionsManager:
         except Error as e:
             logger.error(f"❌ Database connection failed: {e}")
             return False
+    
+    def get_connection_info(self) -> str:
+        """Return a string describing the current connection target."""
+        return f"{self.host}/{self.database}"
     
     def disconnect(self) -> None:
         """Close database connection."""

@@ -30,7 +30,8 @@ logger = logging.getLogger(__name__)
 
 def extract_notebook_cells():
     """Extract all code cells from notebook."""
-    nb_path = Path(__file__).parent / 'Customer_Success_222331.ipynb'
+    # Look for notebook in Automobile folder
+    nb_path = Path(__file__).parent.parent.parent / 'Customer_Success_222331.ipynb'
     
     logger.info(f"📖 Reading notebook: {nb_path}")
     
@@ -65,8 +66,8 @@ def create_execution_script(code_cells, export_cell_idx):
         "warnings.filterwarnings('ignore')",
         "",
         "# Setup paths",
-        "notebook_dir = Path(__file__).parent.parent",
-        "sys.path.insert(0, str(notebook_dir))",
+        "notebook_root = Path(__file__).parent.parent.parent",
+        "sys.path.insert(0, str(notebook_root))",
         "",
         "# Imports",
         "import pandas as pd",
@@ -112,7 +113,7 @@ def create_execution_script(code_cells, export_cell_idx):
         "# " + "=" * 64,
         "print('\\n📊 Exporting predictions to SQL database...')",
         "try:",
-        "    from sql_predictions_manager import SQLModelPredictionsManager",
+        "    from utils.sql_predictions_manager import SQLModelPredictionsManager",
         "    ",
         "    manager = SQLModelPredictionsManager()",
         "    if not manager.connect():",
