@@ -1,35 +1,10 @@
-# Insurance Analytics Platform - Production Requirements
-# ======================================================
-# Full feature set including RAG for cloud deployment
-
-# Core Application
 streamlit==1.50.0
 pandas==2.2.0
-numpy==1.26.4  # Fixed: Compatible with pandas 2.2.0
-
-# Database
+numpy==1.26.4
 mysql-connector-python==8.3.0
-
-# Visualization
 plotly==5.18.0
-
-# ML Models
 scikit-learn==1.3.2
 joblib==1.3.2
-
-# Utilities
 python-dotenv==1.0.0
 requests==2.31.0
 Pillow==10.2.0
-
-# RAG System - Enabled for cloud deployment
-# ⚠️ Warning: Build time increases to 5-7 minutes
-langchain==0.3.27
-langchain-community==0.3.31
-langchain-huggingface==0.3.1
-sentence-transformers==5.1.2
-faiss-cpu==1.12.0
-
-# Note: This enables natural language queries in production
-# Build time: ~5-7 minutes (vs 30s without RAG)
-# Worth it for AI-powered customer search featuresgit add .python-version requirements.txt
