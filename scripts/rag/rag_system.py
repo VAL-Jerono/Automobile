@@ -150,9 +150,13 @@ class InsuranceRAGSystem:
         """
         params = self._parse_query(question)
         
-        if self.df is not None:
+        # Check if we have an in-memory dataframe (preferred for Cloud/No-SQL)
+        if self.df is not None and not self.df.empty:
+            logger.info(f"RAG: Querying in-memory DataFrame ({len(self.df)} rows)")
             results_df = self._query_pandas(params)
         else:
+            # Fallback to SQL if no DataFrame is provided
+            logger.info("RAG: No DataFrame provided, attempting SQL query")
             try:
                 # Build SQL query
                 select_cols = "policy_id, churn_probability, claims_probability, customer_lifetime_value, customer_segment, journey_quadrant"
@@ -168,7 +172,7 @@ class InsuranceRAGSystem:
                 results_df = pd.read_sql(query, conn)
                 conn.close()
                 
-                # Standardize results column names
+                # Standardize results column names for consistency with pandas output
                 results_df = results_df.rename(columns={
                     'policy_id': 'ID',
                     'churn_probability': 'Churn_Prob',
@@ -178,7 +182,7 @@ class InsuranceRAGSystem:
                     'journey_quadrant': 'Journey'
                 })
             except Exception as e:
-                logger.error(f"SQL RAG failed: {e}")
+                logger.error(f"RAG: SQL query failed: {e}")
                 results_df = pd.DataFrame()
         
         # Generate explanation
