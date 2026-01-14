@@ -162,9 +162,6 @@ def load_data():
     
     return None, "No Data Found"
 
-# Load data globally for sidebar access
-df, source_info = load_data()
-
 def process_dataframe(df):
     """Standardize and process the predictions dataframe."""
     # Standardize column names
@@ -191,6 +188,10 @@ def process_dataframe(df):
                            labels=['Low', 'Medium', 'High', 'Critical'])
     
     return df
+
+
+# Load data globally for sidebar access
+df, source_info = load_data()
 
 
 # ============================================================================
