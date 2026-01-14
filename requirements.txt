@@ -32,4 +32,6 @@ faiss-cpu==1.12.0
 
 # Note: This enables natural language queries in production
 # Build time: ~5-7 minutes (vs 30s without RAG)
-# Worth it for AI-powered customer search features
+# Worth it for AI-powered customer search featuresgit add .python-version requirements.txt
+git commit -m "Optimize for Python 3.11 - faster deployment with RAG"
+git push
