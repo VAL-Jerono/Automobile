@@ -458,8 +458,10 @@ def main():
                 # Try to import RAG system (optional feature)
                 from scripts.rag.rag_system import InsuranceRAGSystem
                 
-                with st.spinner("🔍 Searching customer database..."):
-                    rag = InsuranceRAGSystem()
+                with st.spinner("🔍 Analyzing portfolio data..."):
+                    # Pass the pre-loaded dataframe to the RAG system
+                    # This avoids DB connection errors on Streamlit Cloud
+                    rag = InsuranceRAGSystem(df=df)
                     results_df, explanation = rag.query(user_q)
                 
                 # Display explanation
@@ -472,11 +474,27 @@ def main():
                     
                     # Format the dataframe for display
                     display_df = results_df.copy()
-                    display_df['churn_probability'] = display_df['churn_probability'].apply(lambda x: f"{x:.1%}")
-                    display_df['claims_probability'] = display_df['claims_probability'].apply(lambda x: f"{x:.1%}")
-                    display_df['customer_lifetime_value'] = display_df['customer_lifetime_value'].apply(lambda x: f"€{x:,.0f}")
                     
-                    display_df.columns = ['Policy ID', 'Churn Risk', 'Claims Risk', 'Lifetime Value', 'Segment', 'Journey']
+                    # Apply formatting based on column names (standardized by RAG system)
+                    if 'Churn_Prob' in display_df.columns:
+                        display_df['Churn_Prob'] = display_df['Churn_Prob'].apply(lambda x: f"{float(x):.1%}")
+                    if 'Claims_Prob' in display_df.columns:
+                        display_df['Claims_Prob'] = display_df['Claims_Prob'].apply(lambda x: f"{float(x):.1%}")
+                    if 'CLV' in display_df.columns:
+                        display_df['CLV'] = display_df['CLV'].apply(lambda x: f"€{float(x):,.0f}")
+                    
+                    # Define pretty names for columns
+                    pretty_cols = {
+                        'ID': 'Policy ID',
+                        'Churn_Prob': 'Churn Risk',
+                        'Claims_Prob': 'Claims Risk',
+                        'CLV': 'Lifetime Value',
+                        'Segment': 'Segment',
+                        'Journey': 'Journey'
+                    }
+                    
+                    # Rename only existing columns
+                    display_df = display_df.rename(columns=pretty_cols)
                     
                     st.dataframe(display_df, use_container_width=True)
                     
