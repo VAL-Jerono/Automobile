@@ -5,7 +5,7 @@
 # Core Application
 streamlit==1.50.0
 pandas==2.2.0
-numpy==1.24.0
+numpy==1.26.4  # Fixed: Compatible with pandas 2.2.0
 
 # Database
 mysql-connector-python==8.3.0
@@ -33,4 +33,3 @@ faiss-cpu==1.12.0
 # Note: This enables natural language queries in production
 # Build time: ~5-7 minutes (vs 30s without RAG)
 # Worth it for AI-powered customer search features
-
