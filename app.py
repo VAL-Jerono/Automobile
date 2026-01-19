@@ -265,38 +265,50 @@ def main():
             st.plotly_chart(fig, use_container_width=True)
         with col2:
             st.markdown("### 💥 Claims Severity Distribution")
+            sample_sev = df.sample(min(5000, len(df)), random_state=7)
             fig = go.Figure()
-            fig.add_trace(go.Box(y=df.sample(min(5000, len(df)), random_state=7)['Claims_Severity'], marker=dict(color='#06b6d4'), boxmean='sd'))
-            fig.update_layout(height=350, paper_bgcolor='white', plot_bgcolor='#f8fafc', margin=dict(t=20, b=60, l=60, r=20), showlegend=False, yaxis=dict(title="Expected Claim Amount (€)", tickformat=',d', gridcolor='#e2e8f0'))
+            fig.add_trace(go.Violin(
+                y=sample_sev['Claims_Severity'],
+                box_visible=True,
+                meanline_visible=True,
+                line_color='#06b6d4',
+                fillcolor='rgba(6,182,212,0.3)',
+                marker=dict(color='#06b6d4')
+            ))
+            fig.update_layout(
+                height=350,
+                paper_bgcolor='white',
+                plot_bgcolor='#f8fafc',
+                margin=dict(t=20, b=60, l=60, r=20),
+                showlegend=False,
+                yaxis=dict(title="Expected Claim Amount (€)", tickformat=',d', gridcolor='#e2e8f0')
+            )
             st.plotly_chart(fig, use_container_width=True)
         st.markdown("### 📊 Probability vs Severity")
         sample_df = df.sample(min(4000, len(df)), random_state=9)
-        fig = px.scatter(
+        import plotly.express as px
+        fig = px.density_heatmap(
             sample_df,
             x='Claims_Prob',
             y='Claims_Severity',
-            color='Risk_Category',
-            color_discrete_map={
-                'Low Risk': '#10b981',
-                'Medium Risk': '#f59e0b',
-                'High Risk': '#f97316',
-                'Critical Risk': '#ef4444'
+            nbinsx=30,
+            nbinsy=30,
+            color_continuous_scale='Viridis',
+            marginal_x='histogram',
+            marginal_y='histogram',
+            labels={
+                'Claims_Prob': 'Claims Probability',
+                'Claims_Severity': 'Expected Claim Amount (€)'
             },
-            opacity=0.7,
-            size_max=8,
-            size=None,
-            hover_data=['Segment'],
-            template='plotly_white',
+            title='Probability vs Severity Density'
         )
-        fig.update_traces(marker=dict(size=7, line=dict(width=0.5, color='white')))
         fig.update_layout(
             height=400,
             paper_bgcolor='white',
             plot_bgcolor='#f8fafc',
             margin=dict(t=20, b=60, l=60, r=20),
             xaxis=dict(title="Claims Probability", tickformat='.0%', gridcolor='#e2e8f0'),
-            yaxis=dict(title="Expected Claim Amount (€)", tickformat=',d', gridcolor='#e2e8f0'),
-            legend_title_text='Risk Category'
+            yaxis=dict(title="Expected Claim Amount (€)", tickformat=',d', gridcolor='#e2e8f0')
         )
         st.plotly_chart(fig, use_container_width=True)
         st.markdown("### 🚨 Top 20 Claims Risks")
