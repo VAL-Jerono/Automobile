@@ -136,69 +136,63 @@ def process_dataframe(df):
         'renewal_risk_score': 'Renewal_Risk',
         'is_high_renewal_risk': 'High_Renewal_Risk'
     }
-    
+
     # Only rename columns that exist
     df = df.rename(columns={k: v for k, v in col_map.items() if k in df.columns})
-    
+
     # Calculate risk categories if Churn_Prob exists
     if 'Churn_Prob' in df.columns:
-        df['Risk'] = pd.cut(df['Churn_Prob'], 
+        df['Risk'] = pd.cut(df['Churn_Prob'],
                            bins=[0, 0.3, 0.6, 0.85, 1.1],
                            labels=['Low', 'Medium', 'High', 'Critical'])
-    
+
     return df
 
 @st.cache_data(ttl=3600)
 def load_data():
-    """Load predictions and join with raw demographic data."""
+    """Load predictions from SQL database with CSV fallback."""
     project_path = Path(__file__).parent
-    
-    # 1. Load Raw Data for Demographics
-    df_raw = None
-    raw_path = project_path / "Motor_vehicle_insurance_data.csv"
-    if raw_path.exists():
-        try:
-            df_raw = pd.read_csv(raw_path, sep=';')
-            # Basic cleaning for raw data
-            if 'Date_birth' in df_raw.columns:
-                df_raw['Date_birth'] = pd.to_datetime(df_raw['Date_birth'], errors='coerce')
-        except Exception as e:
-            logger.warning(f"Could not load raw data: {e}")
+    if project_path.exists():
+        sys.path.insert(0, str(project_path))
 
-    # 2. Load Predictions
-    df_preds = None
-    source = "None"
-    
-    # Try SQL first
+    # Method 1: Try SQL Database
     try:
         from utils.sql_predictions_manager import SQLModelPredictionsManager
         manager = SQLModelPredictionsManager()
         if manager.connect():
-            df_preds = manager.get_all_predictions()
-            source = "Live SQL"
+            df = manager.get_all_predictions()
+            info = manager.get_connection_info()
             manager.disconnect()
-    except Exception:
-        pass
 
-    # Try CSV if SQL failed
-    if df_preds is None:
-        csv_path = project_path / "model_outputs" / "rag_model_predictions.csv"
-        if csv_path.exists():
-            df_preds = pd.read_csv(csv_path)
-            source = f"Static CSV ({csv_path.name})"
+            if df is not None and not df.empty:
+                logger.info(f"✅ Loaded data from MySQL database: {info}")
+                return process_dataframe(df), f"Live SQL ({info})"
+    except Exception as e:
+        logger.warning(f"SQL Load failed, trying CSV: {e}")
 
-    if df_preds is None:
-        return None, "No prediction data found."
+    # Method 2: Try CSV Fallback
+    csv_paths = [
+        project_path / "model_outputs" / "rag_model_predictions.csv",
+        project_path / "rag_model_predictions.csv",
+        Path("model_outputs/rag_model_predictions.csv"),
+        Path("Automobile/model_outputs/rag_model_predictions.csv"),
+        Path("/app/Automobile/model_outputs/rag_model_predictions.csv") # Common Streamlit Cloud path
+    ]
 
-    # Process and Join
-    df_preds = process_dataframe(df_preds)
-    
-    if df_raw is not None:
-        # Join predictions with raw data on ID
-        df = pd.merge(df_preds, df_raw, on='ID', how='left')
-        return df, f"{source} + Metadata"
-    
-    return df_preds, source
+    tried_paths = []
+    for path in csv_paths:
+        path_str = str(path.absolute()) if path.is_absolute() else str(path)
+        tried_paths.append(path_str)
+        if path.exists():
+            try:
+                df = pd.read_csv(path)
+                logger.info(f"✅ Loaded data from CSV: {path}")
+                return process_dataframe(df), f"Static CSV ({path.name})"
+            except Exception as e:
+                logger.error(f"Error reading CSV {path}: {e}")
+                return None, f"Error reading {path.name}: {str(e)}"
+
+    return None, f"Checked: {', '.join(tried_paths)}"
 
 
 # Load data globally for sidebar access
@@ -210,34 +204,35 @@ df, source_info = load_data()
 # ============================================================================
 
 with st.sidebar:
-    st.markdown("### 📊 Journey")
+    st.markdown("### 📊 Navigation")
     st.markdown("---")
-    
+
     page = st.radio(
-        "Select Phase",
+        "Select View",
         [
-            "Life Cycle Flow",    
-            "1. Acquisition (Get)", 
-            "2. Maintenance (Keep)",
-            "3. Churn & Risks (Exit)",
-            "RAG Q&A",
+            "Flow",                # condensed story
+            "Will they leave?",    # churn / renewal risk
+            "Will they claim?",    # claims frequency & severity
+            "What are they worth?",# CLV & segments
+            "Where are they headed?", # journey quadrants
+            "RAG Q&A",             # optional Q&A hook
             "Export"
         ],
         label_visibility="collapsed",
         key="nav"
     )
-    
+
     st.markdown("---")
     st.markdown("### 🔧 Actions")
-    
+
     if st.button("🔄 Refresh Data", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
-    
+
     st.markdown("---")
-    st.markdown(f"<div style='font-size: 0.8rem; color: #64748b;'>Data Source: {source_info}</div>", 
+    st.markdown(f"<div style='font-size: 0.8rem; color: #64748b;'>Data Source: {source_info}</div>",
                 unsafe_allow_html=True)
-    st.markdown("<div style='font-size: 0.8rem; color: #64748b;'>v7.0 • Production Ready</div>", 
+    st.markdown("<div style='font-size: 0.8rem; color: #64748b;'>v7.0 • Production Ready</div>",
                 unsafe_allow_html=True)
 
 
@@ -249,13 +244,13 @@ with st.sidebar:
 def main():
     # Use data loaded globally
     global df, source_info
-    
+
     if df is None or df.empty:
         st.error("⚠️ Data Source Unavailable")
         st.write(f"**Diagnostic Info:** {source_info}")
         st.markdown("""
         The application could not connect to the MySQL database or find a backup CSV file in the repository.
-        
+
         ### 🔧 How to fix:
         1. **Start MySQL:** Open XAMPP Control Panel and start MySQL.
         2. **Populate Data:** Run the export script to sync data from the research notebook:
@@ -296,246 +291,154 @@ def main():
         </div>
         """
 
-    # LIFE CYCLE FLOW PAGE
-    if page == "Life Cycle Flow":
-        st.markdown("# 🔄 Customer Life Cycle Flow")
-        
-        # Strategic Column at top
-        si1, si2 = st.columns([3, 1])
-        with si1:
-            st.markdown("""
-            This dashboard follows the **Customer Journey** approach: 
-            1. **Get** (Identify high-value acquisition targets)
-            2. **Keep** (Monitor active portfolio health and pricing)
-            3. **Exit** (Mitigate churn and claims impact)
-            """)
-        with si2:
-            st.info("**Strategy:** Maximize portfolio value by shifting customers from 'Monitor' to 'Protect'.")
-
+    # FLOW PAGE
+    if page == "Flow":
+        st.markdown("# 🔥 Customer Analytics Flow")
         c1, c2, c3, c4 = st.columns(4)
-        c1.markdown(metric_card("Acquisition", f"{total_customers:,}", "Total active policies", 'green'), unsafe_allow_html=True)
-        c2.markdown(metric_card("Portfolio Value", f"€{total_value/1e6:.1f}M", "Total CLV", 'blue'), unsafe_allow_html=True)
-        c3.markdown(metric_card("Maintenance", f"{len(df[df['Risk'] == 'Low']):,}", "Low-risk stable base", 'green'), unsafe_allow_html=True)
-        c4.markdown(metric_card("Exit Risk", f"{critical_count:,}", f"{(critical_count/total_customers)*100:.1f}% at-risk", 'red'), unsafe_allow_html=True)
+        c1.markdown(metric_card("Policies", f"{total_customers:,}", None, 'green'), unsafe_allow_html=True)
+        c2.markdown(metric_card("Portfolio", f"€{total_value/1e6:.1f}M", "CLV total", 'blue'), unsafe_allow_html=True)
+        c3.markdown(metric_card("Critical Risk", f"{critical_count:,}", f"{critical_count/total_customers*100:.1f}% flagged", 'red'), unsafe_allow_html=True)
+        c4.markdown(metric_card("High Value", f"€{df[df['CLV']>df['CLV'].quantile(0.9)]['CLV'].sum()/1e6:.1f}M", f"{high_value_count:,} customers", 'green'), unsafe_allow_html=True)
 
         st.markdown("---")
-        
-        # Journey Map Visual
-        st.markdown("### 🗺️ The Portfolio Journey Map")
+        g1, g2 = st.columns(2)
+
+        with g1:
+            risk_data = df['Risk'].value_counts().reindex(['Low','Medium','High','Critical']).fillna(0)
+            fig = go.Figure(go.Bar(
+                x=risk_data.index,
+                y=risk_data.values,
+                marker_color=[palette['green'], palette['amber'], palette['orange'], palette['red']],
+                text=risk_data.values,
+                textposition='outside'
+            ))
+            fig.update_layout(height=360, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=40,r=10), showlegend=False)
+            st.markdown("### Risk Mix")
+            st.plotly_chart(fig, use_container_width=True)
+
+        with g2:
+            scatter = px.scatter(
+                df.sample(min(len(df), 4000), random_state=42),
+                x='Churn_Prob', y='CLV', color='Risk',
+                color_discrete_map={'Low':palette['green'],'Medium':palette['amber'],'High':palette['orange'],'Critical':palette['red']},
+                size='Claims_Severity', opacity=0.75,
+                labels={'Churn_Prob':'Churn','CLV':'Value (€)'}
+            )
+            scatter.update_layout(height=360, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=10,r=10), legend_title_text='Risk')
+            st.markdown("### Churn vs Value")
+            st.plotly_chart(scatter, use_container_width=True)
+
+        g3, g4 = st.columns(2)
+        with g3:
+            claims_fig = px.box(df.sample(min(len(df), 4000), random_state=7), y='Claims_Severity', points='suspectedoutliers', color_discrete_sequence=[palette['blue']])
+            claims_fig.update_layout(height=320, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=10,b=30,l=10,r=10), showlegend=False)
+            st.markdown("### Severity Spread")
+            st.plotly_chart(claims_fig, use_container_width=True)
+
+        with g4:
+            seg = df['Segment'].value_counts()
+            seg_fig = px.pie(names=seg.index, values=seg.values, color=seg.index,
+                             color_discrete_sequence=[palette['green'], palette['amber'], palette['orange'], palette['blue']])
+            seg_fig.update_layout(height=320, paper_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), showlegend=True, margin=dict(t=10,b=10,l=10,r=10))
+            st.markdown("### Segments")
+            st.plotly_chart(seg_fig, use_container_width=True)
+
+    # RETENTION PAGE
+    elif page == "Will they leave?":
+        st.markdown("# ⚡ Will They Leave?")
+        a1, a2, a3 = st.columns(3)
+        a1.markdown(metric_card("Avg Churn", f"{avg_churn*100:.1f}%", None, 'orange'), unsafe_allow_html=True)
+        a2.markdown(metric_card("Critical", f"{critical_count:,}", f"{critical_count/total_customers*100:.1f}%", 'red'), unsafe_allow_html=True)
+        a3.markdown(metric_card("Renewal Risk 70%+", f"{(df['Renewal_Risk']>0.7).sum():,}", None, 'amber'), unsafe_allow_html=True)
+
+        st.markdown("---")
+        c1, c2 = st.columns(2)
+        with c1:
+            churn_hist = px.histogram(df, x='Churn_Prob', nbins=30, color_discrete_sequence=[palette['red']])
+            churn_hist.update_layout(height=350, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=40,r=10))
+            st.markdown("### Churn Probability")
+            st.plotly_chart(churn_hist, use_container_width=True)
+        with c2:
+            renewal = px.box(df, y='Renewal_Risk', color_discrete_sequence=[palette['amber']])
+            renewal.update_layout(height=350, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=10,r=10), showlegend=False)
+            st.markdown("### Renewal Risk")
+            st.plotly_chart(renewal, use_container_width=True)
+
+    # CLAIMS PAGE
+    elif page == "Will they claim?":
+        st.markdown("# 🛡️ Will They Claim?")
+        b1, b2, b3 = st.columns(3)
+        b1.markdown(metric_card("Avg Claims Prob", f"{avg_claims_prob*100:.1f}%", None, 'amber'), unsafe_allow_html=True)
+        b2.markdown(metric_card("High Claims Prob", f"{(df['Claims_Prob']>0.5).sum():,}", "Above 50%", 'orange'), unsafe_allow_html=True)
+        b3.markdown(metric_card("Severity p95", f"€{df['Claims_Severity'].quantile(0.95):,.0f}", None, 'blue'), unsafe_allow_html=True)
+
+        st.markdown("---")
+        d1, d2 = st.columns(2)
+        with d1:
+            claims_hist = px.histogram(df, x='Claims_Prob', nbins=30, color_discrete_sequence=[palette['amber']])
+            claims_hist.update_layout(height=340, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=40,r=10))
+            st.markdown("### Claims Probability")
+            st.plotly_chart(claims_hist, use_container_width=True)
+        with d2:
+            sev_scatter = px.scatter(df.sample(min(len(df), 5000), random_state=9), x='Claims_Prob', y='Claims_Severity', color='Risk',
+                                     color_discrete_map={'Low':palette['green'],'Medium':palette['amber'],'High':palette['orange'],'Critical':palette['red']},
+                                     opacity=0.7)
+            sev_scatter.update_layout(height=340, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=10,r=10))
+            st.markdown("### Probability vs Severity")
+            st.plotly_chart(sev_scatter, use_container_width=True)
+
+    # VALUE PAGE
+    elif page == "What are they worth?":
+        st.markdown("# 💎 What Are They Worth?")
+        v1, v2, v3 = st.columns(3)
+        v1.markdown(metric_card("Avg CLV", f"€{df['CLV'].mean():,.0f}", None, 'blue'), unsafe_allow_html=True)
+        v2.markdown(metric_card("Top 10% CLV", f"€{df['CLV'].quantile(0.9):,.0f}", None, 'green'), unsafe_allow_html=True)
+        v3.markdown(metric_card("Underpriced", f"{df['Underpriced'].sum():,}", "Loss-making risk", 'orange'), unsafe_allow_html=True)
+
+        st.markdown("---")
+        e1, e2 = st.columns(2)
+        with e1:
+            clv_hist = px.histogram(df, x='CLV', nbins=40, color_discrete_sequence=[palette['blue']])
+            clv_hist.update_layout(height=340, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=40,r=10))
+            st.markdown("### CLV Distribution")
+            st.plotly_chart(clv_hist, use_container_width=True)
+        with e2:
+            seg_bar = px.bar(df.groupby('Segment')['CLV'].mean().reset_index(), x='Segment', y='CLV', color='Segment',
+                             color_discrete_sequence=[palette['green'], palette['amber'], palette['orange'], palette['blue']])
+            seg_bar.update_layout(height=340, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=10,r=10), showlegend=False)
+            st.markdown("### CLV by Segment")
+            st.plotly_chart(seg_bar, use_container_width=True)
+
+    # JOURNEY PAGE
+    elif page == "Where are they headed?":
+        st.markdown("# 🧭 Where Are They Headed?")
         j_counts = df['Journey'].value_counts()
-        
-        # Improved journey display
-        f1, f2, f3 = st.columns(3)
-        with f1:
-            st.markdown("#### 🟢 1. Acquisition (Get)")
-            st.markdown("Focus on high-growth potential.")
-            st.metric("Growth Targets", f"{j_counts.get('Grow', 0):,}")
-        with f2:
-            st.markdown("#### 🔵 2. Maintenance (Keep)")
-            st.markdown("Ensure stability and pricing depth.")
-            st.metric("Stable Base", f"{j_counts.get('Protect', 0):,}")
-        with f3:
-            st.markdown("#### 🔴 3. Retention (Exit)")
-            st.markdown("Immediate churn intervention.")
-            st.metric("Rescue Priority", f"{j_counts.get('Rescue', 0):,}")
-            
+        j1, j2 = st.columns(2)
+        j1.markdown(metric_card("Protect", f"{j_counts.get('Protect',0):,}", None, 'green'), unsafe_allow_html=True)
+        j1.markdown(metric_card("Grow", f"{j_counts.get('Grow',0):,}", None, 'blue'), unsafe_allow_html=True)
+        j2.markdown(metric_card("Rescue", f"{j_counts.get('Rescue',0):,}", None, 'orange'), unsafe_allow_html=True)
+        j2.markdown(metric_card("Monitor", f"{j_counts.get('Monitor',0):,}", None, 'amber'), unsafe_allow_html=True)
+
         st.markdown("---")
-        
-        # High level scatter: Churn vs Value
-        scatter = px.scatter(
-            df.sample(min(len(df), 4000), random_state=42),
-            x='Churn_Prob', y='CLV', color='Risk',
-            color_discrete_map={'Low':palette['green'],'Medium':palette['amber'],'High':palette['orange'],'Critical':palette['red']},
-            size='Claims_Severity', opacity=0.75,
-            hover_data=['ID', 'Segment', 'Journey'],
-            labels={'Churn_Prob':'Retention Risk','CLV':'Customer Value (€)'}
-        )
-        scatter.update_layout(height=450, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=10,r=10), legend_title_text='Risk Status')
-        st.markdown("### 📊 Portfolio Value vs. Retention Risk")
-        st.plotly_chart(scatter, use_container_width=True)
-
-    # ACQUISITION PAGE
-    elif page == "1. Acquisition (Get)":
-        st.markdown("# 🎯 Acquisition Strategy: Who Are We Getting?")
-        
-        ast1, ast2 = st.columns([2, 1])
-        with ast1:
-            with st.expander("❓ Questions this answers", expanded=True):
-                st.markdown("""
-                - **Age Profile:** What age groups are we attracting?
-                - **Risk Profile:** Are we heavy on high-risk vehicle types?
-                - **Geography:** Where are our customers coming from?
-                """)
-        with ast2:
-            st.warning("**Strategic Insight:** Young drivers (18-24) represent our longest acquisition horizon but carry higher initial premium sensitivity.")
-
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            # Age Distribution (Notebook finding: peak around mid-30s)
-            if 'Date_birth' in df.columns:
-                ref_date = pd.Timestamp('2026-01-14')
-                df['Age'] = (ref_date - df['Date_birth']).dt.days / 365.25
-                age_data = df[(df['Age'] >= 18) & (df['Age'] <= 85)]['Age']
-                
-                age_fig = px.histogram(age_data, x='Age', nbins=40, 
-                                     color_discrete_sequence=[palette['blue']],
-                                     title="Demographic Snapshot: Age of Policyholders")
-                age_fig.add_vrect(x0=18, x1=25, fillcolor="red", opacity=0.1, annotation_text="High Growth", annotation_position="top left")
-                age_fig.update_layout(height=400, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']))
-                st.plotly_chart(age_fig, use_container_width=True)
-
-        with col2:
-            # Vehicle Type Distribution
-            if 'Type_risk' in df.columns:
-                risk_counts = df['Type_risk'].value_counts().reset_index()
-                risk_counts.columns = ['Vehicle Type', 'Count']
-                
-                risk_fig = px.bar(risk_counts, y='Vehicle Type', x='Count', orientation='h', 
-                                 color='Count', color_continuous_scale='Blues',
-                                 title="Targeting: Vehicle Type Acquisition")
-                risk_fig.update_layout(height=400, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), showlegend=False)
-                st.plotly_chart(risk_fig, use_container_width=True)
-
-        # Acquisition Channel and Geography
-        col3, col4 = st.columns(2)
-        with col3:
-            if 'Area' in df.columns:
-                area_counts = df['Area'].value_counts().reset_index()
-                area_fig = px.pie(area_counts, names='Area', values='count', hole=0.5,
-                                 color_discrete_sequence=[palette['blue'], palette['green']],
-                                 title="Market Location: Urban vs Rural")
-                area_fig.update_layout(height=350, font=dict(color=palette['text']))
-                st.plotly_chart(area_fig, use_container_width=True)
-        
-        with col4:
-            if 'Distribution_channel' in df.columns:
-                chan_counts = df['Distribution_channel'].value_counts().reset_index()
-                chan_fig = px.bar(chan_counts, x='Distribution_channel', y='count', 
-                                 color='count', color_continuous_scale='Greens',
-                                 title="Sales Channel Performance")
-                chan_fig.update_layout(height=350, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), showlegend=False)
-                st.plotly_chart(chan_fig, use_container_width=True)
-
-    # MAINTENANCE PAGE
-    elif page == "2. Maintenance (Keep)":
-        st.markdown("# 💎 Maintenance Strategy: Ensuring Portfolio Value")
-        
-        mst1, mst2 = st.columns([2, 1])
-        with mst1:
-            with st.expander("❓ Questions this answers", expanded=True):
-                st.markdown("""
-                - **Segmentation:** Which segments (Platinum/Gold) provide the stable value base?
-                - **Pricing:** Are we maintaining premium adequacy against predicted claims?
-                - **Value:** How is CLV distributed across the book?
-                """)
-        with mst2:
-            st.success("**Strategic Insight:** Platinum segments yield 3x the CLV of Bronze. Maintenance focus should be on upselling Silver/Gold to Platinum.")
-
-        m1, m2 = st.columns(2)
-        with m1:
-            # CLV by Segment
-            seg_clv = df.groupby('Segment')['CLV'].mean().sort_values(ascending=False).reset_index()
-            fig_clv = px.bar(seg_clv, x='Segment', y='CLV', color='CLV',
-                            color_continuous_scale='Viridis',
-                            title="Portfolio Value: Avg CLV by Segment")
-            fig_clv.update_layout(height=400, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']))
-            st.plotly_chart(fig_clv, use_container_width=True)
-
-        with m2:
-            # Premium Distribution
-            if 'Premium' in df.columns:
-                q99 = df['Premium'].quantile(0.99)
-                prem_data = df[df['Premium'] <= q99]['Premium']
-                fig_prem = px.histogram(prem_data, x='Premium', nbins=40, color_discrete_sequence=[palette['green']],
-                                      title="Revenue Stream: Premium Amount Distribution")
-                fig_prem.update_layout(height=400, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']))
-                st.plotly_chart(fig_prem, use_container_width=True)
-
-        # Pricing Adequacy
-        st.markdown("### ⚖️ Pricing Strategy & Margin Analysis")
-        p1, p2 = st.columns([2, 1])
-        with p1:
-            # Scatter of CLV vs Premium
-            if 'Premium' in df.columns:
-                scatter_p = px.scatter(df.sample(min(len(df), 3000), random_state=1), 
-                                     x='Premium', y='CLV', color='Underpriced',
-                                     color_discrete_map={0: palette['blue'], 1: palette['red']},
-                                     hover_data=['ID', 'Segment'],
-                                     opacity=0.6, title="Margin Health: Premium vs Customer Value")
-                scatter_p.update_layout(height=450, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']))
-                st.plotly_chart(scatter_p, use_container_width=True)
-        with p2:
-            st.markdown("<br><br>", unsafe_allow_html=True)
-            up_count = df['Underpriced'].sum()
-            st.markdown(metric_card("Underpriced", f"{up_count:,}", f"{(up_count/total_customers)*100:.1f}% Margin Risk", 'red'), unsafe_allow_html=True)
-            st.info("""
-            **Priority Action:** 
-            Policies in **Red** are underpriced relative to their predicted risk. 
-            Initiate price adjustments or limit renewal discounts for these targets.
-            """)
-
-    # RETENTION / EXIT PAGE
-    elif page == "3. Churn & Risks (Exit)":
-        st.markdown("# ⚠️ Exit Strategy: Mitigating Churn & Claims")
-        
-        est1, est2 = st.columns([2, 1])
-        with est1:
-            with st.expander("❓ Questions this answers", expanded=True):
-                st.markdown("""
-                - **Churn Drivers:** Which age groups or segments are most likely to leave?
-                - **Claim Spikes:** What is our exposure to high-severity predicted claims?
-                - **Retention:** Who are the 'Rescue' targets we must prioritize?
-                """)
-        with est2:
-            st.error("**Strategic Insight:** High-severity claims are clustered in the 'Critical' risk group. Prioritize renewal reviews for 'Rescue' quadrant immediately.")
-
-        r1, r2 = st.columns(2)
-        with r1:
-            # Churn by Age Group
-            if 'Age' in df.columns:
-                age_bins = [18, 25, 35, 45, 55, 65, 100]
-                age_labels = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+']
-                df['Age_Group'] = pd.cut(df['Age'], bins=age_bins, labels=age_labels)
-                
-                churn_age = df.groupby('Age_Group')['Churn_Prob'].mean().reset_index()
-                fig_churn_age = px.bar(churn_age, x='Age_Group', y='Churn_Prob', color='Churn_Prob',
-                                      color_continuous_scale='Reds',
-                                      title="Churn Forecast: Exit Probability by Age")
-                fig_churn_age.update_layout(height=400, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']))
-                st.plotly_chart(fig_churn_age, use_container_width=True)
-            else:
-                # Fallback to simple churn prob histogram
-                fig_churn = px.histogram(df, x='Churn_Prob', nbins=30, color_discrete_sequence=[palette['red']])
-                fig_churn.update_layout(title="Churn Probability Distribution", height=380, font=dict(color=palette['text']))
-                st.plotly_chart(fig_churn, use_container_width=True)
-
-        with r2:
-            # Claims Severity Analysis
-            sev_box = px.box(df, y='Claims_Severity', x='Risk', color='Risk', 
-                            color_discrete_map={'Low':palette['green'],'Medium':palette['amber'],'High':palette['orange'],'Critical':palette['red']},
-                            title="Loss Exposure: Claims Severity by Risk Status")
-            sev_box.update_layout(height=400, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), showlegend=False)
-            st.plotly_chart(sev_box, use_container_width=True)
-
-        st.markdown("### 🚨 High Value Retention (Rescue) Priority List")
-        rescue_targets = df[df['Journey'] == 'Rescue'].sort_values(by=['CLV', 'Churn_Prob'], ascending=[False, False]).head(10)
-        
-        if not rescue_targets.empty:
-            display_rescue = rescue_targets[['ID', 'Segment', 'CLV', 'Churn_Prob', 'Claims_Prob']].copy()
-            display_rescue['CLV'] = display_rescue['CLV'].apply(lambda x: f"€{x:,.0f}")
-            display_rescue['Churn_Prob'] = display_rescue['Churn_Prob'].apply(lambda x: f"{x:.1%}")
-            display_rescue['Claims_Prob'] = display_rescue['Claims_Prob'].apply(lambda x: f"{x:.1%}")
-            st.dataframe(display_rescue, use_container_width=True)
-            st.caption("Top 10 Strategy: Direct intervention recommended for these high-value/low-retention customers.")
-        else:
-            st.success("No critical rescue targets identified in current view.")
+        q1, q2 = st.columns([1,1])
+        with q1:
+            journey_fig = px.bar(j_counts.reset_index(), x='Journey', y='count', color='Journey',
+                                 color_discrete_sequence=[palette['green'], palette['blue'], palette['orange'], palette['amber']])
+            journey_fig.update_layout(height=340, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=40,r=10), showlegend=False, xaxis_title='', yaxis_title='Count')
+            st.markdown("### Journey Quadrant Counts")
+            st.plotly_chart(journey_fig, use_container_width=True)
+        with q2:
+            risk_value = px.scatter(df.sample(min(len(df), 4000), random_state=5), x='Renewal_Risk', y='CLV', color='Journey',
+                                    color_discrete_sequence=[palette['green'], palette['blue'], palette['orange'], palette['amber']], opacity=0.75)
+            risk_value.update_layout(height=340, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color=palette['text']), margin=dict(t=20,b=40,l=10,r=10))
+            st.markdown("### Risk vs Value")
+            st.plotly_chart(risk_value, use_container_width=True)
 
     # RAG PAGE
     elif page == "RAG Q&A":
         st.markdown("# 🔎 RAG Q&A")
         st.markdown("Ask natural language questions about your customer portfolio. The system will query the database and provide insights.")
-        
+
         # Example questions
         with st.expander("💡 Example Questions"):
             st.markdown("""
@@ -547,31 +450,31 @@ def main():
             - Show bronze segment customers in monitor quadrant
             - List top 20 customers by lifetime value
             """)
-        
+
         user_q = st.text_input("Ask a question", placeholder="e.g., Show top 5 critical churn policies with high CLV")
-        
+
         if user_q:
             try:
                 # Try to import RAG system (optional feature)
                 from scripts.rag.rag_system import InsuranceRAGSystem
-                
+
                 with st.spinner("🔍 Analyzing portfolio data..."):
                     # Pass the pre-loaded dataframe to the RAG system
                     # This avoids DB connection errors on Streamlit Cloud
                     rag = InsuranceRAGSystem(df=df)
                     results_df, explanation = rag.query(user_q)
-                
+
                 # Display explanation
                 st.markdown("### 📊 Results")
                 st.info(explanation)
-                
+
                 # Display results table
                 if len(results_df) > 0:
                     st.markdown("### 👥 Customer Details")
-                    
+
                     # Format the dataframe for display
                     display_df = results_df.copy()
-                    
+
                     # Apply formatting based on column names (standardized by RAG system)
                     if 'Churn_Prob' in display_df.columns:
                         display_df['Churn_Prob'] = display_df['Churn_Prob'].apply(lambda x: f"{float(x):.1%}")
@@ -579,7 +482,7 @@ def main():
                         display_df['Claims_Prob'] = display_df['Claims_Prob'].apply(lambda x: f"{float(x):.1%}")
                     if 'CLV' in display_df.columns:
                         display_df['CLV'] = display_df['CLV'].apply(lambda x: f"€{float(x):,.0f}")
-                    
+
                     # Define pretty names for columns
                     pretty_cols = {
                         'ID': 'Policy ID',
@@ -589,12 +492,12 @@ def main():
                         'Segment': 'Segment',
                         'Journey': 'Journey'
                     }
-                    
+
                     # Rename only existing columns
                     display_df = display_df.rename(columns=pretty_cols)
-                    
+
                     st.dataframe(display_df, use_container_width=True)
-                    
+
                     # Add download button
                     csv = results_df.to_csv(index=False)
                     st.download_button(
@@ -605,16 +508,16 @@ def main():
                     )
                 else:
                     st.warning("No customers match your query criteria.")
-                    
+
             except ImportError as import_err:
                 st.warning("⚠️ **RAG system not available** - Missing dependencies")
                 st.info("""
                 The natural language query feature requires additional packages not installed in this deployment.
-                
+
                 **To enable this feature:**
                 1. Use full `requirements.txt` instead of `requirements-cloud.txt`
                 2. This will increase build time but enable AI-powered queries
-                
+
                 **Alternative:** Use the filters in other sections to explore data.
                 """)
                 logger.warning(f"RAG system import failed: {import_err}")
@@ -625,9 +528,9 @@ def main():
     # EXPORT PAGE
     elif page == "Export":
         st.markdown("# ⬇️ Export")
-        
+
         col1, col2 = st.columns([2, 1])
-        
+
         with col1:
             csv = df.to_csv(index=False).encode('utf-8')
             st.download_button(
@@ -638,7 +541,7 @@ def main():
                 use_container_width=True
             )
             st.dataframe(df.head(200))
-        
+
         with col2:
             st.markdown("### Value at Risk")
             risk_value = df.groupby('Risk')['CLV'].sum() / 1e6
@@ -662,6 +565,188 @@ def main():
                 margin=dict(t=10, b=30, l=40, r=10)
             )
             st.plotly_chart(fig, use_container_width=True)
-    
+
+    # PAGE: RISK ANALYSIS
+    elif page == "Risk Analysis":
+        st.markdown("# 🚨 Risk Analysis")
+
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            st.markdown("### Risk Matrix")
+            risk_counts = df['Risk'].value_counts()
+            fig = go.Figure(data=[
+                go.Pie(
+                    labels=risk_counts.index,
+                    values=risk_counts.values,
+                    marker=dict(colors=['#10b981', '#f59e0b', '#f97316', '#ef4444']),
+                    hole=0.3
+                )
+            ])
+            fig.update_layout(
+                height=400,
+                showlegend=True,
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#e2e8f0'),
+                legend=dict(bgcolor='rgba(0,0,0,0)'),
+                margin=dict(t=10, b=10, l=10, r=10)
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        with col2:
+            st.markdown("### Churn vs Value Scatter")
+            sample_df = df.sample(min(3000, len(df)))
+            fig = px.scatter(
+                sample_df,
+                x='Churn_Prob',
+                y='CLV',
+                color='Risk',
+                size='Claims_Severity',
+                color_discrete_map={
+                    'Low': '#10b981',
+                    'Medium': '#f59e0b',
+                    'High': '#f97316',
+                    'Critical': '#ef4444'
+                },
+                labels={'Churn_Prob': 'Churn Probability', 'CLV': 'Customer Value (€)'}
+            )
+            fig.update_layout(
+                height=400,
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(15,23,42,0.6)',
+                font=dict(color='#e2e8f0'),
+                xaxis=dict(gridcolor='rgba(255,255,255,0.1)'),
+                yaxis=dict(gridcolor='rgba(255,255,255,0.1)'),
+                legend=dict(bgcolor='rgba(0,0,0,0)'),
+                margin=dict(t=10, b=30, l=40, r=10)
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("---")
+        st.markdown("### Risk Breakdown")
+        risk_table = df['Risk'].value_counts().reset_index()
+        risk_table.columns = ['Risk Level', 'Count']
+        risk_table['% of Portfolio'] = (risk_table['Count'] / len(df) * 100).round(1)
+        risk_table['Avg CLV (€)'] = df.groupby('Risk').apply(lambda x: f"€{x['CLV'].mean():.0f}")
+        st.dataframe(risk_table.set_index('Risk Level'), use_container_width=True)
+
+    # PAGE: SEGMENTS
+    elif page == "Segments":
+        st.markdown("# 📈 Customer Segments")
+
+        segment_data = df['Segment'].value_counts().head(15)
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("### Segment Distribution")
+            fig = px.pie(
+                values=segment_data.values,
+                names=segment_data.index,
+                hole=0.4,
+                color_discrete_sequence=px.colors.sequential.Blues_r
+            )
+            fig.update_layout(
+                height=400,
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#e2e8f0'),
+                legend=dict(bgcolor='rgba(0,0,0,0)', font=dict(size=10)),
+                margin=dict(t=10, b=10, l=10, r=10)
+            )
+            fig.update_traces(textfont_size=10)
+            st.plotly_chart(fig, use_container_width=True)
+
+        with col2:
+            st.markdown("### Average Value by Segment")
+            segment_avg = df.groupby('Segment')['CLV'].mean().sort_values(ascending=False).head(15)
+            fig = go.Figure(data=[
+                go.Bar(
+                    y=segment_avg.index,
+                    x=segment_avg.values,
+                    orientation='h',
+                    marker_color='#667eea',
+                    text=[f'€{v:.0f}' for v in segment_avg.values],
+                    textposition='outside'
+                )
+            ])
+            fig.update_layout(
+                height=400,
+                showlegend=False,
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#e2e8f0'),
+                xaxis=dict(title="Avg CLV (€)", gridcolor='rgba(255,255,255,0.1)'),
+                yaxis=dict(title=""),
+                margin=dict(t=10, b=30, l=120, r=10)
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+    # PAGE: HIGH-RISK CUSTOMERS
+    elif page == "High-Risk":
+        st.markdown("# 🚨 Critical & High-Risk Customers")
+
+        risk_filter = st.selectbox("Show:", ["Critical", "Critical + High", "All"])
+
+        if risk_filter == "Critical":
+            display_df = df[df['Risk'] == 'Critical']
+        elif risk_filter == "Critical + High":
+            display_df = df[df['Risk'].isin(['Critical', 'High'])]
+        else:
+            display_df = df
+
+        display_df = display_df.sort_values('Churn_Prob', ascending=False)
+
+        st.markdown(f"### {len(display_df):,} Customers")
+        st.metric("Total Value at Risk", f"€{display_df['CLV'].sum()/1e6:.1f}M")
+
+        st.dataframe(
+            display_df[['ID', 'Segment', 'Churn_Prob', 'CLV', 'Risk']].head(500),
+            use_container_width=True,
+            height=500
+        )
+
+    # PAGE: EXPORT
+    elif page == "Export":
+        st.markdown("# 📥 Export Data")
+
+        st.markdown("### Select Data to Download")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button("📊 Full Portfolio", use_container_width=True):
+                csv = df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="Download Full Dataset",
+                    data=csv,
+                    file_name="insurance_portfolio.csv",
+                    mime="text/csv"
+                )
+
+        with col2:
+            if st.button("🚨 Critical Only", use_container_width=True):
+                critical = df[df['Risk'] == 'Critical']
+                csv = critical.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="Download Critical Customers",
+                    data=csv,
+                    file_name="critical_customers.csv",
+                    mime="text/csv"
+                )
+
+        st.markdown("---")
+        st.markdown("### Data Summary")
+        summary = {
+            'Total Customers': f"{len(df):,}",
+            'Total Value': f"€{df['CLV'].sum()/1e6:.1f}M",
+            'Critical Customers': f"{len(df[df['Risk'] == 'Critical']):,}",
+            'Avg Churn Risk': f"{df['Churn_Prob'].mean()*100:.1f}%",
+            'Data Records': f"{df.shape[0]:,}"
+        }
+
+        for key, value in summary.items():
+            st.metric(key, value)
+
+
 if __name__ == "__main__":
     main()
