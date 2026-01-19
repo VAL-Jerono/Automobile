@@ -27,6 +27,9 @@ Motor vehicle insurance data.csv
 *.csv
 *.xlsx
 
+# Allow tracking of the predictions CSV for app fallback
+!Automobile/model_outputs/rag_model_predictions.csv
+
 # .env file with credentials - NEVER commit
 .env
 .env.local
