@@ -186,16 +186,20 @@ def load_data():
 
     tried_paths = []
     for path in csv_paths:
-        path_str = str(path.absolute()) if path.is_absolute() else str(path)
-        tried_paths.append(path_str)
-        if path.exists():
-            try:
-                df = pd.read_csv(path)
-                logger.info(f"✅ Loaded data from CSV: {path}")
-                return process_dataframe(df), f"Static CSV ({path.name})"
-            except Exception as e:
-                logger.error(f"Error reading CSV {path}: {e}")
-                return None, f"Error reading {path.name}: {str(e)}"
+        try:
+            path_str = str(path.absolute()) if path.is_absolute() else str(path)
+            tried_paths.append(path_str)
+            if path.exists():
+                try:
+                    df = pd.read_csv(path)
+                    logger.info(f"✅ Loaded data from CSV: {path}")
+                    return process_dataframe(df), f"Static CSV ({path.name})"
+                except Exception as e:
+                    logger.error(f"Error reading CSV {path}: {e}")
+                    return None, f"Error reading {path.name}: {str(e)}"
+        except PermissionError as e:
+            logger.warning(f"Permission denied for {path}: {e}")
+            continue
 
     return None, f"Checked: {', '.join(tried_paths)}"
 
