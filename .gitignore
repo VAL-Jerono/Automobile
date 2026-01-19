@@ -24,7 +24,6 @@ Thumbs.db
 # Data files - DO NOT COMMIT (Use SQL instead)
 Motor_vehicle_insurance_data.csv
 Motor vehicle insurance data.csv
-*.csv
 *.xlsx
 
 # Allow tracking of the predictions CSV for app fallback
