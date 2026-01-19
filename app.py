@@ -265,23 +265,26 @@ def main():
             st.plotly_chart(fig, use_container_width=True)
         with col2:
             st.markdown("### 💥 Claims Severity Distribution")
+            import plotly.figure_factory as ff
             sample_sev = df.sample(min(5000, len(df)), random_state=7)
-            fig = go.Figure()
-            fig.add_trace(go.Violin(
-                y=sample_sev['Claims_Severity'],
-                box_visible=True,
-                meanline_visible=True,
-                line_color='#06b6d4',
-                fillcolor='rgba(6,182,212,0.3)',
-                marker=dict(color='#06b6d4')
-            ))
+            hist_data = [sample_sev['Claims_Severity']]
+            group_labels = ['Claims Severity']
+            fig = ff.create_distplot(
+                hist_data,
+                group_labels,
+                bin_size=max(1, (sample_sev['Claims_Severity'].max() - sample_sev['Claims_Severity'].min())/40),
+                show_hist=True,
+                show_rug=False,
+                colors=['#06b6d4']
+            )
             fig.update_layout(
                 height=350,
                 paper_bgcolor='white',
                 plot_bgcolor='#f8fafc',
                 margin=dict(t=20, b=60, l=60, r=20),
                 showlegend=False,
-                yaxis=dict(title="Expected Claim Amount (€)", tickformat=',d', gridcolor='#e2e8f0')
+                xaxis=dict(title="Expected Claim Amount (€)", tickformat=',d', gridcolor='#e2e8f0'),
+                yaxis=dict(title="Density", gridcolor='#e2e8f0')
             )
             st.plotly_chart(fig, use_container_width=True)
         st.markdown("### 📊 Probability vs Severity")
