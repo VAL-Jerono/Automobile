@@ -287,20 +287,22 @@ def main():
         st.markdown("### 📊 Probability vs Severity")
         sample_df = df.sample(min(4000, len(df)), random_state=9)
         import plotly.express as px
+        # Use hexbin plot for clearer density visualization
         fig = px.density_heatmap(
             sample_df,
             x='Claims_Prob',
             y='Claims_Severity',
-            nbinsx=30,
-            nbinsy=30,
             color_continuous_scale='Viridis',
-            marginal_x='histogram',
-            marginal_y='histogram',
             labels={
                 'Claims_Prob': 'Claims Probability',
                 'Claims_Severity': 'Expected Claim Amount (€)'
             },
-            title='Probability vs Severity Density'
+            title='Probability vs Severity Density',
+            histfunc='avg',
+        )
+        fig.update_traces(
+            selector=dict(type='heatmap'),
+            showscale=True
         )
         fig.update_layout(
             height=400,
