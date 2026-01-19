@@ -169,15 +169,20 @@ def load_data():
                 return process_dataframe(df), f"Live SQL ({info})"
     except Exception as e:
         logger.warning(f"SQL Load failed, trying CSV: {e}")
+    
+
+
 
     # Method 2: Try CSV Fallback
     csv_paths = [
-        project_path / "model_outputs" / "rag_model_predictions.csv",
-        project_path / "rag_model_predictions.csv",
+        "model_outputs" / "rag_model_predictions.csv",
+        "rag_model_predictions.csv",
         Path("model_outputs/rag_model_predictions.csv"),
         Path("Automobile/model_outputs/rag_model_predictions.csv"),
         Path("/app/Automobile/model_outputs/rag_model_predictions.csv") # Common Streamlit Cloud path
     ]
+    
+    
 
     tried_paths = []
     for path in csv_paths:
