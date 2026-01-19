@@ -270,24 +270,33 @@ def main():
             fig.update_layout(height=350, paper_bgcolor='white', plot_bgcolor='#f8fafc', margin=dict(t=20, b=60, l=60, r=20), showlegend=False, yaxis=dict(title="Expected Claim Amount (€)", tickformat=',d', gridcolor='#e2e8f0'))
             st.plotly_chart(fig, use_container_width=True)
         st.markdown("### 📊 Probability vs Severity")
-        import plotly.figure_factory as ff
         sample_df = df.sample(min(4000, len(df)), random_state=9)
-        # Use a 2D density heatmap for better readability
-        fig = ff.create_2d_density(
-            x=sample_df['Claims_Prob'],
-            y=sample_df['Claims_Severity'],
-            colorscale='Blues',
-            hist_color='rgba(16,185,129,0.2)',
-            point_size=2,
-            title='Probability vs Severity Density'
+        fig = px.scatter(
+            sample_df,
+            x='Claims_Prob',
+            y='Claims_Severity',
+            color='Risk_Category',
+            color_discrete_map={
+                'Low Risk': '#10b981',
+                'Medium Risk': '#f59e0b',
+                'High Risk': '#f97316',
+                'Critical Risk': '#ef4444'
+            },
+            opacity=0.7,
+            size_max=8,
+            size=None,
+            hover_data=['Segment'],
+            template='plotly_white',
         )
+        fig.update_traces(marker=dict(size=7, line=dict(width=0.5, color='white')))
         fig.update_layout(
             height=400,
             paper_bgcolor='white',
             plot_bgcolor='#f8fafc',
             margin=dict(t=20, b=60, l=60, r=20),
             xaxis=dict(title="Claims Probability", tickformat='.0%', gridcolor='#e2e8f0'),
-            yaxis=dict(title="Expected Claim Amount (€)", tickformat=',d', gridcolor='#e2e8f0')
+            yaxis=dict(title="Expected Claim Amount (€)", tickformat=',d', gridcolor='#e2e8f0'),
+            legend_title_text='Risk Category'
         )
         st.plotly_chart(fig, use_container_width=True)
         st.markdown("### 🚨 Top 20 Claims Risks")
