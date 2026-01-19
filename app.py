@@ -204,7 +204,7 @@ def load_data():
     return None, f"Checked: {', '.join(tried_paths)}"
 
 
-# Load data globally for sidebar access
+## Load data globally for sidebar access
 df, source_info = load_data()
 
 
