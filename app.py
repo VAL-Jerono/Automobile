@@ -175,10 +175,10 @@ def load_data():
 
     # Method 2: Try CSV Fallback
     csv_paths = [
+        Path("Automobile/model_outputs/rag_model_predictions.csv"),
         Path("model_outputs") / "rag_model_predictions.csv",
         Path("rag_model_predictions.csv"),
         Path("model_outputs/rag_model_predictions.csv"),
-        Path("Automobile/model_outputs/rag_model_predictions.csv"),
         Path("/app/Automobile/model_outputs/rag_model_predictions.csv") # Common Streamlit Cloud path
     ]
     
