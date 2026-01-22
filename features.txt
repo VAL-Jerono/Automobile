@@ -1,0 +1,137 @@
+======================================================================
+FEATURE ENGINEERING DOCUMENTATION
+Generated: 2026-01-22 20:03:08
+======================================================================
+
+
+CHURN MODEL FEATURES (29 features)
+----------------------------------------------------------------------
+ 1. Seniority
+ 2. Is_danger_zone
+ 3. Is_first_year
+ 4. Tenure_loyalty_score
+ 5. Premium
+ 6. Premium_log
+ 7. Is_high_premium
+ 8. Premium_percentile
+ 9. Premium_to_value_ratio
+10. Is_overpriced
+11. Months_since_renewal
+12. Near_renewal
+13. Days_since_renewal
+14. Is_multi_policy
+15. Policy_concentration
+16. Is_annual_payment
+17. Driver_age
+18. Is_high_risk_age
+19. Is_stable_age
+20. Licence_years
+21. Is_novice
+22. Is_agent_channel
+23. Is_urban
+24. Is_broker_urban
+25. Has_claims_history
+26. Claims_per_year
+27. Loss_ratio
+28. Policy_age_years
+29. Is_Q4_start
+
+
+CLAIMS_FREQUENCY MODEL FEATURES (29 features)
+----------------------------------------------------------------------
+ 1. N_claims_history
+ 2. Claims_history_log
+ 3. Has_claims_history
+ 4. Is_frequent_claimant
+ 5. Claims_per_year
+ 6. R_Claims_history
+ 7. Driver_age
+ 8. Is_high_risk_age
+ 9. Licence_years
+10. Is_novice
+11. Age_licence_gap
+12. Late_licence
+13. Is_van
+14. Is_passenger_car
+15. Is_motorbike
+16. Value_vehicle
+17. Value_vehicle_log
+18. Is_high_value
+19. Power
+20. Power_log
+21. Is_high_power
+22. Has_second_driver
+23. Is_urban
+24. Composite_risk_score
+25. Seniority
+26. Policy_age_years
+27. Is_broker_urban
+28. Policy_start_quarter
+29. Is_Q4_start
+
+
+CLAIMS_SEVERITY MODEL FEATURES (28 features)
+----------------------------------------------------------------------
+ 1. Value_vehicle
+ 2. Value_vehicle_log
+ 3. Is_high_value
+ 4. Power
+ 5. Power_log
+ 6. Is_high_power
+ 7. Cylinder_capacity
+ 8. Is_van
+ 9. Is_passenger_car
+10. Is_motorbike
+11. N_claims_history
+12. R_Claims_history
+13. Claims_per_year
+14. Premium
+15. Premium_log
+16. Premium_to_value_ratio
+17. Driver_age
+18. Is_high_risk_age
+19. Licence_years
+20. Is_novice
+21. Has_second_driver
+22. Is_urban
+23. Weight
+24. Year_matriculation
+25. Is_agent_channel
+26. Is_broker_urban
+27. Composite_risk_score
+28. Seniority
+
+
+CLV MODEL FEATURES (30 features)
+----------------------------------------------------------------------
+ 1. Premium
+ 2. Premium_log
+ 3. Seniority
+ 4. Tenure_loyalty_score
+ 5. Is_danger_zone
+ 6. Is_first_year
+ 7. N_claims_history
+ 8. Claims_history_log
+ 9. Claims_per_year
+10. Loss_ratio
+11. Is_unprofitable
+12. Is_multi_policy
+13. Policies_in_force
+14. Policies_log
+15. Policy_concentration
+16. Max_policies
+17. Is_agent_channel
+18. Months_since_renewal
+19. Near_renewal
+20. Is_annual_payment
+21. Driver_age
+22. Is_stable_age
+23. Licence_years
+24. Has_claims_history
+25. Composite_risk_score
+26. Value_vehicle_log
+27. Premium_to_value_ratio
+28. Is_high_premium
+29. Is_urban
+30. Is_broker_urban
+
