@@ -1,6 +1,6 @@
 ======================================================================
 FEATURE ENGINEERING DOCUMENTATION
-Generated: 2026-01-23 07:58:12
+Generated: 2026-02-09 14:50:05
 ======================================================================
 
 
@@ -70,36 +70,46 @@ CLAIMS_FREQUENCY MODEL FEATURES (29 features)
 29. Is_Q4_start
 
 
-CLAIMS_SEVERITY MODEL FEATURES (28 features)
+CLAIMS_SEVERITY MODEL FEATURES (38 features)
 ----------------------------------------------------------------------
- 1. Value_vehicle
- 2. Value_vehicle_log
- 3. Is_high_value
- 4. Power
- 5. Power_log
- 6. Is_high_power
- 7. Cylinder_capacity
- 8. Is_van
- 9. Is_passenger_car
-10. Is_motorbike
-11. N_claims_history
-12. R_Claims_history
-13. Claims_per_year
-14. Premium
-15. Premium_log
-16. Premium_to_value_ratio
-17. Driver_age
-18. Is_high_risk_age
-19. Licence_years
-20. Is_novice
-21. Has_second_driver
-22. Is_urban
-23. Weight
-24. Year_matriculation
-25. Is_agent_channel
-26. Is_broker_urban
-27. Composite_risk_score
-28. Seniority
+ 1. Is_severe_claim
+ 2. Severity_log
+ 3. Vehicle_damage_potential
+ 4. Value_damage_score
+ 5. Power_damage_score
+ 6. Weight_damage_score
+ 7. Historical_claim_rate
+ 8. Is_high_claim_frequency
+ 9. Vehicle_age
+10. Is_old_vehicle
+11. Value_vehicle
+12. Value_vehicle_log
+13. Power
+14. Power_log
+15. Weight
+16. Cylinder_capacity
+17. Is_high_value
+18. Is_high_power
+19. Is_passenger_car
+20. Is_van
+21. N_claims_history
+22. Claims_history_log
+23. R_Claims_history
+24. Claims_per_year
+25. Is_frequent_claimant
+26. Premium
+27. Premium_log
+28. Premium_to_value_ratio
+29. Loss_ratio
+30. Is_unprofitable
+31. Driver_age
+32. Is_high_risk_age
+33. Licence_years
+34. Is_novice
+35. Has_second_driver
+36. Is_urban
+37. Composite_risk_score
+38. Seniority
 
 
 CLV MODEL FEATURES (30 features)

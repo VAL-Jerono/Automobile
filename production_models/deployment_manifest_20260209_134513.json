@@ -1,0 +1,33 @@
+{
+  "deployment_ready": true,
+  "models": [
+    "churn",
+    "claims_frequency",
+    "claims_severity"
+  ],
+  "timestamp": "20260209_134513",
+  "data_quality": "production_verified",
+  "leakage_exclusions": {
+    "claims_severity": [
+      "Is_severe_claim",
+      "Severity_log",
+      "Loss_ratio",
+      "Is_unprofitable"
+    ]
+  },
+  "performance_summary": {
+    "churn": {
+      "roc_auc": 0.8926925801249631,
+      "improvement": "+0.11%"
+    },
+    "claims_frequency": {
+      "roc_auc": 0.9219177874437944,
+      "improvement": "+0.14%"
+    },
+    "claims_severity": {
+      "r2_score": 0.6941279851820231,
+      "improvement": "+19.60%",
+      "leakage_removed": true
+    }
+  }
+}
