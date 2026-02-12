@@ -359,8 +359,11 @@ def main():
     avg_churn = df['Churn_Prob'].mean()
     high_risk_customers = len(df[df['Churn_Prob'] > 0.6])
     
-    # Enhanced metrics based on research findings
-    valley_of_death_customers = len(df[(df.get('Policy_tenure_years', 0) >= 1) & (df.get('Policy_tenure_years', 0) <= 3)])
+    # Enhanced metrics based on research findings (robust column checking)
+    if 'Policy_tenure_years' in df.columns:
+        valley_of_death_customers = len(df[(df['Policy_tenure_years'] >= 1) & (df['Policy_tenure_years'] <= 3)])
+    else:
+        valley_of_death_customers = 0
     underpriced_customers = len(df[df['Underpriced'] == 1]) if 'Underpriced' in df.columns else 0
     
     if page == "Executive Overview":
