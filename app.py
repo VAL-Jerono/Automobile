@@ -319,21 +319,6 @@ def load_fallback_data():
     
     logger.info(f"Generated {len(df):,} synthetic records matching research patterns")
     return df, f"Enhanced Demo Data ({len(df):,} policies - Research Validated)"
-    })
-    
-    # Calculate CLV and segments
-    expected_claims_cost = df['Claims_Prob'] * df['Claims_Severity']
-    df['CLV'] = (df['Annual_Premium'] - expected_claims_cost) * 3
-    df['CLV'] = np.clip(df['CLV'], 50, 2000)
-    
-    df['Segment'] = np.random.choice(['PROTECT', 'DEVELOP', 'MANAGE', 'EXIT'], 
-                                   n_samples, p=[0.35, 0.31, 0.15, 0.19])
-    df['Value_Tier'] = pd.qcut(df['CLV'], q=4, labels=['Bronze', 'Silver', 'Gold', 'Platinum'])
-    df['Region'] = 'Urban'
-    df['Underpriced'] = 0
-    df['Renewal_Risk'] = df['Churn_Prob']
-    
-    return df, f"Fallback Synthetic Data ({n_samples:,} policies)"
 
 @st.cache_data(ttl=3600)
 def load_production_models():
