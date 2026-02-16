@@ -1,0 +1,54 @@
+# Prometheus alert rules for Insurance Analytics
+groups:
+  - name: insurance_api_alerts
+    interval: 30s
+    rules:
+      # High error rate
+      - alert: HighAPIErrorRate
+        expr: rate(api_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High API error rate detected"
+          description: "API error rate is {{ $value }} errors per second"
+      
+      # Slow response time
+      - alert: SlowAPIResponse
+        expr: histogram_quantile(0.95, rate(api_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API response time is slow"
+          description: "95th percentile response time is {{ $value }} seconds"
+      
+      # High churn predictions
+      - alert: HighChurnRisk
+        expr: churn_predictions_high_risk_count > 100
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High number of at-risk customers"
+          description: "{{ $value }} customers flagged as high churn risk"
+      
+      # Model prediction errors
+      - alert: ModelPredictionFailure
+        expr: rate(model_predictions_total[5m]) == 0
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Model predictions have stopped"
+          description: "No predictions recorded in last 10 minutes"
+      
+      # Database connection issues
+      - alert: DatabaseConnectionFailure
+        expr: up{job="mysql"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database is down"
+          description: "MySQL database is not responding"

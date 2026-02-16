@@ -361,7 +361,8 @@ load_data = load_real_data
 COLORS = {'critical': '#ef4444', 'high': '#f97316', 'medium': '#f59e0b', 'low': '#10b981', 'primary': '#3b82f6', 'secondary': '#8b5cf6', 'accent': '#06b6d4'}
 
 def create_metric_card(label, value, subtitle="", color='primary'):
-    return f'<div class="metric-card"><div class="metric-label">{label}</div><div class="big-number" style="color: {COLORS.get(color, COLORS["primary"])}">{value}</div>{f"<div style=\"color: #64748b; font-size: 0.9rem;\">{subtitle}</div>" if subtitle else ""}</div>'
+    subtitle_html = f'<div style="color: #64748b; font-size: 0.9rem;">{subtitle}</div>' if subtitle else ""
+    return f'<div class="metric-card"><div class="metric-label">{label}</div><div class="big-number" style="color: {COLORS.get(color, COLORS["primary"])}">{value}</div>{subtitle_html}</div>'
 
 df, data_source = load_real_data()
 

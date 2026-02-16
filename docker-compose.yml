@@ -1,0 +1,115 @@
+services:
+  # Note: Using host MySQL (already running on localhost:3306 with insurance database)
+  # No need to run MySQL in Docker since data is already loaded locally
+
+  # FastAPI Backend
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: insurance_api
+    environment:
+      DB_HOST: host.docker.internal  # Points to host machine's MySQL
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-insurance}
+      DB_USER: ${DB_USER:-root}  # Use root or your local MySQL user
+      DB_PASSWORD: ${DB_PASSWORD:-root}  # Your local MySQL password
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./api:/app/api
+      - ./production_models:/app/production_models
+      - ./mlruns:/app/mlruns
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Enable host access
+    networks:
+      - insurance_network
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8001 --reload
+
+  # Streamlit Frontend
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: insurance_streamlit
+    environment:
+      DB_HOST: host.docker.internal  # Points to host machine's MySQL
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-insurance}
+      DB_USER: ${DB_USER:-root}  # Use root or your local MySQL user
+      DB_PASSWORD: ${DB_PASSWORD:-root}  # Your local MySQL password
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./app.py:/app/app.py
+      - ./utils:/app/utils
+      - ./scripts:/app/scripts
+      - ./enhanced_faiss_index:/app/enhanced_faiss_index
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - api
+    networks:
+      - insurance_network
+    command: streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+
+  # MLflow Tracking Server
+  mlflow:
+    image: python:3.9-slim
+    container_name: insurance_mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+      - ./mlflow_artifacts:/mlflow/artifacts
+    networks:
+      - insurance_network
+    command: >
+      bash -c "pip install mlflow boto3 &&
+      mlflow server 
+      --backend-store-uri sqlite:///mlflow/mlflow.db 
+      --default-artifact-root /mlflow/artifacts 
+      --host 0.0.0.0 
+      --port 5000"
+
+  # Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: insurance_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus_data:/prometheus
+    networks:
+      - insurance_network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  # Grafana Dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: insurance_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana_dashboards:/etc/grafana/provisioning/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - insurance_network
+
+networks:
+  insurance_network:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:

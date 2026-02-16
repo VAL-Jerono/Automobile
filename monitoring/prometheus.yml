@@ -1,0 +1,29 @@
+# Prometheus configuration for Insurance Analytics API
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'insurance-analytics'
+
+scrape_configs:
+  - job_name: 'insurance_api'
+    static_configs:
+      - targets: ['localhost:8001']
+    metrics_path: '/metrics'
+    
+  - job_name: 'streamlit_app'
+    static_configs:
+      - targets: ['localhost:8501']
+    
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['localhost:3306']
+
+# Alert rules
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['localhost:9093']
+
+rule_files:
+  - 'alerts.yml'
