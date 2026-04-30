@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vondetta AI Systems | Motor Insurance Intelligence — East Africa</title>
+  <meta name="description" content="Vondetta — East Africa's most advanced AI-powered motor insurance platform. 92% model accuracy. 53,000+ drivers protected across Kenya, Uganda, Tanzania, Rwanda & Ethiopia."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- ─── NAVIGATION ─────────────────────────────────────── -->
+<nav class="nav" id="mainNav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <svg class="logo-hex" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" stroke="#00c8ff" stroke-width="1.8" fill="none"/>
+        <polygon points="16,8 22,12 22,20 16,24 10,20 10,12" fill="#00c8ff" fill-opacity="0.15" stroke="#00c8ff" stroke-width="1"/>
+        <circle cx="16" cy="16" r="3" fill="#00c8ff"/>
+      </svg>
+      <span class="logo-name">VONDETTA</span>
+      <span class="logo-tag">AI Systems</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#platform">Platform</a></li>
+      <li><a href="#products">Products</a></li>
+      <li><a href="#coverage">Coverage</a></li>
+      <li><a href="#quote">Get Quote</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn-ghost-sm" onclick="scrollTo('#quote')">Login</button>
+      <button class="btn-primary-sm" onclick="scrollTo('#quote')">Get Started</button>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ─── HERO ───────────────────────────────────────────── -->
+<section class="hero" id="hero">
+  <canvas class="hero-canvas" id="heroCanvas"></canvas>
+  <div class="hero-grid-overlay"></div>
+
+  <div class="hero-inner">
+    <!-- LEFT: Text -->
+    <div class="hero-copy">
+      <div class="hero-badge">
+        <span class="badge-pulse"></span>
+        East Africa's #1 AI Insurance Platform
+      </div>
+      <h1 class="hero-h1">
+        Motor Insurance,<br>
+        <span class="glow-text">Reinvented by AI</span>
+      </h1>
+      <p class="hero-sub">
+        Vondetta's machine-learning stack predicts churn, models claims, and optimises premiums for 53,000+ drivers across the region — with up to 92% model accuracy.
+      </p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="scrollTo('#quote')">
+          Get My AI Quote <span class="arrow">→</span>
+        </button>
+        <button class="btn-ghost" onclick="scrollTo('#platform')">
+          Explore Platform
+        </button>
+      </div>
+      <div class="hero-flags">
+        <span title="Kenya">🇰🇪 Kenya</span>
+        <span title="Uganda">🇺🇬 Uganda</span>
+        <span title="Tanzania">🇹🇿 Tanzania</span>
+        <span title="Rwanda">🇷🇼 Rwanda</span>
+        <span title="Ethiopia">🇪🇹 Ethiopia</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Abstract Car Art -->
+    <div class="hero-art">
+      <div class="art-glow"></div>
+
+      <!-- Floating data labels -->
+      <div class="data-chip chip-tl">
+        <span class="chip-val">89.3%</span>
+        <span class="chip-lbl">Churn ROC-AUC</span>
+      </div>
+      <div class="data-chip chip-tr">
+        <span class="chip-val">92.2%</span>
+        <span class="chip-lbl">Claims Accuracy</span>
+      </div>
+      <div class="data-chip chip-bl">
+        <span class="chip-val">€25.8M</span>
+        <span class="chip-lbl">Portfolio CLV</span>
+      </div>
+      <div class="data-chip chip-br">
+        <span class="chip-val">53,502</span>
+        <span class="chip-lbl">Active Policies</span>
+      </div>
+
+      <!-- THE ABSTRACT CAR SVG -->
+      <svg class="car-svg" viewBox="0 0 820 340" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Panel gradients -->
+          <linearGradient id="gCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00c8ff" stop-opacity="0.92"/>
+            <stop offset="100%" stop-color="#0066cc" stop-opacity="0.65"/>
+          </linearGradient>
+          <linearGradient id="gBlue" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#1e40af" stop-opacity="0.88"/>
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.55"/>
+          </linearGradient>
+          <linearGradient id="gPurp" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.88"/>
+            <stop offset="100%" stop-color="#4c1d95" stop-opacity="0.6"/>
+          </linearGradient>
+          <linearGradient id="gGold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffd700" stop-opacity="0.92"/>
+            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.65"/>
+          </linearGradient>
+          <linearGradient id="gGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00e5a0" stop-opacity="0.85"/>
+            <stop offset="100%" stop-color="#059669" stop-opacity="0.55"/>
+          </linearGradient>
+          <linearGradient id="gDark" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0f172a" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#1e293b" stop-opacity="1"/>
+          </linearGradient>
+          <linearGradient id="gWheel" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#334155"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <radialGradient id="gGround" cx="50%" cy="0%" r="50%">
+            <stop offset="0%" stop-color="#00c8ff" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#00c8ff" stop-opacity="0"/>
+          </radialGradient>
+
+          <!-- Glow filters -->
+          <filter id="glow" x="-25%" y="-25%" width="150%" height="150%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glowHard" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="8" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Ground shadow/glow -->
+        <ellipse cx="410" cy="318" rx="350" ry="16" fill="url(#gGround)"/>
+
+        <!-- ══ CHASSIS / UNDERBODY ══ -->
+        <polygon points="118,258 700,258 730,240 88,240"
+          fill="url(#gDark)" stroke="#00c8ff" stroke-width="0.5" opacity="0.95"/>
+
+        <!-- ══ FRONT LOWER FENDER ══ -->
+        <polygon points="55,258 118,258 88,240 52,252"
+          fill="url(#gBlue)" stroke="#00c8ff" stroke-width="0.9"/>
+
+        <!-- ══ FRONT BODY LOWER ══ -->
+        <polygon points="88,240 265,232 282,198 162,208"
+          fill="url(#gCyan)" stroke="#00c8ff" stroke-width="0.6"/>
+
+        <!-- ══ MID BODY LOWER ══ -->
+        <polygon points="265,232 475,232 475,198 282,198"
+          fill="url(#gBlue)" stroke="#3b82f6" stroke-width="0.5"/>
+
+        <!-- ══ REAR BODY LOWER ══ -->
+        <polygon points="475,232 648,236 638,198 475,198"
+          fill="url(#gPurp)" stroke="#8b5cf6" stroke-width="0.6"/>
+
+        <!-- ══ REAR LOWER / BUMPER ══ -->
+        <polygon points="648,236 730,240 748,258 700,258"
+          fill="url(#gGold)" stroke="#ffd700" stroke-width="0.9"/>
+
+        <!-- ══ FRONT HOOD LOWER ══ -->
+        <polygon points="162,208 282,198 305,165 205,172"
+          fill="url(#gCyan)" stroke="#00c8ff" stroke-width="0.7"/>
+
+        <!-- ══ FRONT HOOD UPPER ══ -->
+        <polygon points="205,172 305,165 325,128 258,138"
+          fill="url(#gBlue)" stroke="#00c8ff" stroke-width="0.7"/>
+
+        <!-- ══ A-PILLAR ══ -->
+        <polygon points="282,198 305,165 342,98 318,138"
+          fill="url(#gPurp)" stroke="#8b5cf6" stroke-width="0.8"/>
+
+        <!-- ══ WINDSHIELD ══ -->
+        <polygon points="318,138 342,98 350,84 368,118 345,136"
+          fill="#00c8ff" fill-opacity="0.12" stroke="#00c8ff" stroke-width="1.2" filter="url(#glow)"/>
+        <polygon points="342,98 476,98 468,126 362,126"
+          fill="#00d4ff" fill-opacity="0.07" stroke="#00c8ff" stroke-width="0.8"/>
+
+        <!-- ══ ROOF — segmented for poly-art ══ -->
+        <polygon points="350,84 476,84 476,98 342,98"
+          fill="url(#gDark)" stroke="#00c8ff" stroke-width="0.7"/>
+        <polygon points="476,84 530,84 525,78 476,78"
+          fill="url(#gBlue)" stroke="#1e40af" stroke-width="0.5"/>
+        <polygon points="350,78 476,78 476,84 350,84"
+          fill="url(#gPurp)" stroke="#8b5cf6" stroke-width="0.4" opacity="0.6"/>
+        <polygon points="476,78 530,78 530,84 476,84"
+          fill="url(#gDark)" stroke="#00c8ff" stroke-width="0.4"/>
+        <polygon points="350,74 530,74 530,78 350,78"
+          fill="url(#gBlue)" stroke="#1e40af" stroke-width="0.3" opacity="0.8"/>
+
+        <!-- ══ C-PILLAR ══ -->
+        <polygon points="468,126 476,98 530,84 538,98 512,130"
+          fill="url(#gPurp)" stroke="#8b5cf6" stroke-width="0.9"/>
+
+        <!-- ══ REAR WINDSHIELD ══ -->
+        <polygon points="512,130 538,98 590,98 600,128"
+          fill="#8b5cf6" fill-opacity="0.18" stroke="#8b5cf6" stroke-width="1.2" filter="url(#glow)"/>
+
+        <!-- ══ REAR UPPER BODY ══ -->
+        <polygon points="600,128 590,98 636,106 648,172"
+          fill="url(#gGold)" stroke="#ffd700" stroke-width="0.8"/>
+
+        <!-- ══ REAR MID BODY ══ -->
+        <polygon points="475,198 638,198 648,172 600,128 512,130 475,162"
+          fill="url(#gPurp)" stroke="#8b5cf6" stroke-width="0.6" opacity="0.82"/>
+
+        <!-- ══ DOOR PANEL LEFT ══ -->
+        <polygon points="282,198 475,198 475,232 265,232"
+          fill="url(#gBlue)" fill-opacity="0.4" stroke="#3b82f6" stroke-width="0.4"/>
+        <!-- door line detail -->
+        <line x1="285" y1="215" x2="472" y2="215" stroke="#00c8ff" stroke-width="0.5" stroke-dasharray="4,6" opacity="0.5"/>
+
+        <!-- ══ HEADLIGHT ══ -->
+        <polygon points="58,248 98,226 115,242 72,258"
+          fill="url(#gCyan)" stroke="#00c8ff" stroke-width="1.1" filter="url(#glowHard)" opacity="0.92"/>
+        <polygon points="64,246 94,228 108,241 76,254"
+          fill="#00c8ff" fill-opacity="0.55" filter="url(#glowHard)"/>
+        <!-- headlight beam line -->
+        <line x1="30" y1="238" x2="58" y2="246" stroke="#00c8ff" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.6" filter="url(#glow)"/>
+        <line x1="22" y1="246" x2="58" y2="250" stroke="#00c8ff" stroke-width="1" stroke-dasharray="2,5" opacity="0.35"/>
+
+        <!-- ══ TAILLIGHT ══ -->
+        <polygon points="700,232 730,240 748,256 718,250"
+          fill="url(#gGold)" stroke="#ffd700" stroke-width="1.1" filter="url(#glowHard)" opacity="0.92"/>
+        <polygon points="706,235 724,242 738,253 716,247"
+          fill="#ffd700" fill-opacity="0.45" filter="url(#glowHard)"/>
+
+        <!-- ══ WHEEL — FRONT ══ -->
+        <circle cx="192" cy="288" r="54" fill="#060b18" stroke="#334155" stroke-width="1.5"/>
+        <circle cx="192" cy="288" r="46" fill="url(#gWheel)" stroke="#00c8ff" stroke-width="1.8" filter="url(#glow)"/>
+        <circle cx="192" cy="288" r="28" fill="#060b18"/>
+        <!-- Spokes -->
+        <line x1="192" y1="248" x2="192" y2="266" stroke="#00c8ff" stroke-width="2.2"/>
+        <line x1="192" y1="310" x2="192" y2="328" stroke="#00c8ff" stroke-width="2.2"/>
+        <line x1="152" y1="288" x2="170" y2="288" stroke="#00c8ff" stroke-width="2.2"/>
+        <line x1="214" y1="288" x2="232" y2="288" stroke="#00c8ff" stroke-width="2.2"/>
+        <line x1="164" y1="260" x2="178" y2="274" stroke="#00c8ff" stroke-width="1.8"/>
+        <line x1="206" y1="302" x2="220" y2="316" stroke="#00c8ff" stroke-width="1.8"/>
+        <line x1="164" y1="316" x2="178" y2="302" stroke="#00c8ff" stroke-width="1.8"/>
+        <line x1="206" y1="274" x2="220" y2="260" stroke="#00c8ff" stroke-width="1.8"/>
+        <circle cx="192" cy="288" r="10" fill="#00c8ff" fill-opacity="0.88"/>
+
+        <!-- ══ WHEEL — REAR ══ -->
+        <circle cx="618" cy="288" r="54" fill="#060b18" stroke="#334155" stroke-width="1.5"/>
+        <circle cx="618" cy="288" r="46" fill="url(#gWheel)" stroke="#ffd700" stroke-width="1.8" filter="url(#glow)"/>
+        <circle cx="618" cy="288" r="28" fill="#060b18"/>
+        <!-- Spokes -->
+        <line x1="618" y1="248" x2="618" y2="266" stroke="#ffd700" stroke-width="2.2"/>
+        <line x1="618" y1="310" x2="618" y2="328" stroke="#ffd700" stroke-width="2.2"/>
+        <line x1="578" y1="288" x2="596" y2="288" stroke="#ffd700" stroke-width="2.2"/>
+        <line x1="640" y1="288" x2="658" y2="288" stroke="#ffd700" stroke-width="2.2"/>
+        <line x1="590" y1="260" x2="604" y2="274" stroke="#ffd700" stroke-width="1.8"/>
+        <line x1="632" y1="302" x2="646" y2="316" stroke="#ffd700" stroke-width="1.8"/>
+        <line x1="590" y1="316" x2="604" y2="302" stroke="#ffd700" stroke-width="1.8"/>
+        <line x1="632" y1="274" x2="646" y2="260" stroke="#ffd700" stroke-width="1.8"/>
+        <circle cx="618" cy="288" r="10" fill="#ffd700" fill-opacity="0.88"/>
+
+        <!-- ══ DATA NODES at vertices ══ -->
+        <circle class="dnode" cx="342" cy="98" r="4.5" fill="#00e5a0" filter="url(#glow)"/>
+        <circle class="dnode" cx="476" cy="84" r="4.5" fill="#00e5a0" filter="url(#glow)"/>
+        <circle class="dnode" cx="530" cy="84" r="3.5" fill="#ffd700" filter="url(#glow)"/>
+        <circle class="dnode" cx="305" cy="165" r="3" fill="#00c8ff" filter="url(#glow)"/>
+        <circle class="dnode" cx="648" cy="172" r="3.5" fill="#ffd700" filter="url(#glow)"/>
+        <circle class="dnode" cx="590" cy="98" r="3" fill="#8b5cf6" filter="url(#glow)"/>
+
+        <!-- ══ OUTLINE highlight ══ -->
+        <polyline
+          points="55,258 118,258 162,208 282,198 305,165 342,98 530,84 590,98 648,172 638,198 730,240 748,258"
+          fill="none" stroke="#00c8ff" stroke-width="1.5" stroke-dasharray="4,7"
+          opacity="0.55" class="car-outline"/>
+
+        <!-- ══ SCAN LINE ══ -->
+        <line class="scan-line" x1="0" y1="180" x2="820" y2="180"
+          stroke="#00c8ff" stroke-width="0.6" stroke-dasharray="5,10" opacity="0.35"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="scroll-hint">
+    <span>scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ─── STATS STRIP ─────────────────────────────────────── -->
+<section class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-num" data-target="53502" data-duration="2200">0</span>
+      <span class="stat-lbl">Active Policies</span>
+    </div>
+    <div class="stat-div"></div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="89" data-suffix="%" data-duration="1800">0</span>
+      <span class="stat-lbl">Churn Model Accuracy</span>
+    </div>
+    <div class="stat-div"></div>
+    <div class="stat-item">
+      <span class="stat-num" data-prefix="€" data-target="25.8" data-suffix="M" data-decimal="1" data-duration="2000">0</span>
+      <span class="stat-lbl">Portfolio CLV Managed</span>
+    </div>
+    <div class="stat-div"></div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="5" data-duration="1200">0</span>
+      <span class="stat-lbl">East African Countries</span>
+    </div>
+    <div class="stat-div"></div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="3" data-duration="1000">0</span>
+      <span class="stat-lbl">Proprietary AI Models</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── AI PLATFORM ─────────────────────────────────────── -->
+<section class="section platform-section" id="platform">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-tag">AI Intelligence Layer</span>
+      <h2 class="section-h2">Three Models.<br>One <span class="glow-text">Intelligent</span> Stack.</h2>
+      <p class="section-p">Vondetta's proprietary XGBoost engine — trained on 93,802 real motor insurance records — delivers the most accurate risk intelligence in East Africa.</p>
+    </div>
+
+    <div class="models-grid">
+      <!-- Model 1 -->
+      <div class="model-card">
+        <div class="model-icon-wrap cyan-border">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="22" cy="16" r="8" stroke="#00c8ff" stroke-width="2"/>
+            <path d="M9 38c0-7.18 5.82-13 13-13s13 5.82 13 13" stroke="#00c8ff" stroke-width="2" stroke-linecap="round"/>
+            <path d="M30 8l4 4M30 16l4-4" stroke="#ffd700" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="model-badge cyan-badge">89.26% ROC-AUC</div>
+        <h3>Churn Prediction</h3>
+        <p>Identifies at-risk customers up to 90 days before lapse. Analyzes 30+ behavioural signals — tenure, claims history, premium-to-value ratio — to flag who needs immediate retention action.</p>
+        <div class="progress-bar">
+          <div class="progress-fill cyan-fill" data-width="89.26"></div>
+        </div>
+        <ul class="model-perks">
+          <li>90-day early warning window</li>
+          <li>Loyalty score decomposition</li>
+          <li>Renewal probability ranking</li>
+        </ul>
+      </div>
+
+      <!-- Model 2 — Featured -->
+      <div class="model-card model-featured">
+        <div class="feat-crown">Most Accurate</div>
+        <div class="model-icon-wrap gold-border">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 4l4.5 12H38L28 24l4 12-10-7-10 7 4-12L6 16h11.5L22 4z" stroke="#ffd700" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="model-badge gold-badge">92.25% ROC-AUC</div>
+        <h3>Claims Frequency</h3>
+        <p>Predicts how often a customer will file claims. The highest-performing model in the stack, using vehicle value, driver age, and tenure curves to achieve industry-leading precision.</p>
+        <div class="progress-bar">
+          <div class="progress-fill gold-fill" data-width="92.25"></div>
+        </div>
+        <ul class="model-perks">
+          <li>Real-time premium adjustment</li>
+          <li>Driver risk profiling</li>
+          <li>Vehicle value segmentation</li>
+        </ul>
+      </div>
+
+      <!-- Model 3 -->
+      <div class="model-card">
+        <div class="model-icon-wrap green-border">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="22" width="7" height="18" rx="1" stroke="#00e5a0" stroke-width="2"/>
+            <rect x="15" y="14" width="7" height="26" rx="1" stroke="#00e5a0" stroke-width="2"/>
+            <rect x="26" y="7" width="7" height="33" rx="1" stroke="#00e5a0" stroke-width="2"/>
+            <path d="M37 12l4-4M37 4l4 4" stroke="#00c8ff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="model-badge green-badge">R² = 0.352</div>
+        <h3>Claims Severity</h3>
+        <p>Estimates the financial cost of future claims. Combined with frequency scoring, severity modelling enables precise actuarial reserves and fair, data-driven premium pricing.</p>
+        <div class="progress-bar">
+          <div class="progress-fill green-fill" data-width="35.2"></div>
+        </div>
+        <ul class="model-perks">
+          <li>Cost exposure quantification</li>
+          <li>Actuarial reserve optimisation</li>
+          <li>Premium adequacy flagging (14%)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tech Stack pill row -->
+    <div class="tech-row">
+      <span class="tech-pill">XGBoost</span>
+      <span class="tech-pill">FAISS Vector Search</span>
+      <span class="tech-pill">LangChain RAG</span>
+      <span class="tech-pill">FastAPI</span>
+      <span class="tech-pill">93,802-row Dataset</span>
+      <span class="tech-pill">MLflow Tracking</span>
+      <span class="tech-pill">Prometheus + Grafana</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CLV SEGMENTATION ─────────────────────────────────── -->
+<section class="section seg-section" id="segmentation">
+  <div class="section-inner">
+    <div class="seg-layout">
+      <div class="seg-copy">
+        <span class="section-tag">Customer Intelligence</span>
+        <h2 class="section-h2">Know Every Customer's<br><span class="glow-text">True Value</span></h2>
+        <p class="section-p">Vondetta's CLV engine segments every policyholder into four strategic quadrants, enabling precise retention, growth, and exit strategies.</p>
+
+        <div class="seg-cards">
+          <div class="seg-card seg-protect">
+            <span class="seg-pct">34.6%</span>
+            <div>
+              <span class="seg-name">PROTECT</span>
+              <span class="seg-desc">High value · Low risk</span>
+            </div>
+          </div>
+          <div class="seg-card seg-develop">
+            <span class="seg-pct">30.8%</span>
+            <div>
+              <span class="seg-name">DEVELOP</span>
+              <span class="seg-desc">Low value · Low risk</span>
+            </div>
+          </div>
+          <div class="seg-card seg-manage">
+            <span class="seg-pct">15.4%</span>
+            <div>
+              <span class="seg-name">MANAGE</span>
+              <span class="seg-desc">High value · High risk</span>
+            </div>
+          </div>
+          <div class="seg-card seg-exit">
+            <span class="seg-pct">19.2%</span>
+            <div>
+              <span class="seg-name">EXIT</span>
+              <span class="seg-desc">Low value · High risk</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="clv-tiers">
+          <div class="tier-item">
+            <span class="tier-dot bronze-dot"></span>
+            <span>Bronze <em>€60–€2,700 CLV</em></span>
+          </div>
+          <div class="tier-item">
+            <span class="tier-dot silver-dot"></span>
+            <span>Silver <em>€2,701–€3,600 CLV</em></span>
+          </div>
+          <div class="tier-item">
+            <span class="tier-dot gold-dot"></span>
+            <span>Gold <em>€3,601–€4,500 CLV</em></span>
+          </div>
+          <div class="tier-item">
+            <span class="tier-dot plat-dot"></span>
+            <span>Platinum <em>€4,501+ CLV</em></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="seg-matrix-wrap">
+        <!-- 2×2 Value/Risk Matrix -->
+        <div class="matrix">
+          <div class="matrix-axis-y">← HIGH VALUE</div>
+          <div class="matrix-grid">
+            <div class="m-cell m-protect">
+              <span class="m-name">PROTECT</span>
+              <span class="m-pct">34.6%</span>
+              <span class="m-sub">Loyalty campaigns</span>
+            </div>
+            <div class="m-cell m-manage">
+              <span class="m-name">MANAGE</span>
+              <span class="m-pct">15.4%</span>
+              <span class="m-sub">Risk mitigation</span>
+            </div>
+            <div class="m-cell m-develop">
+              <span class="m-name">DEVELOP</span>
+              <span class="m-pct">30.8%</span>
+              <span class="m-sub">Upsell & grow</span>
+            </div>
+            <div class="m-cell m-exit">
+              <span class="m-name">EXIT</span>
+              <span class="m-pct">19.2%</span>
+              <span class="m-sub">Deprioritise</span>
+            </div>
+          </div>
+          <div class="matrix-axis-x">LOW RISK → HIGH RISK →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRODUCTS ─────────────────────────────────────────── -->
+<section class="section products-section" id="products">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-tag">Motor Insurance Products</span>
+      <h2 class="section-h2">Coverage Built for <span class="glow-text">East Africa</span></h2>
+      <p class="section-p">From Nairobi's ring roads to Kampala's boda traffic — Vondetta tailors every policy to the driver's unique AI-assessed risk profile.</p>
+    </div>
+
+    <div class="products-grid">
+      <!-- Bronze -->
+      <div class="product-card">
+        <div class="product-car-art">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="pBronze" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#64748b" stop-opacity="0.5"/>
+              </linearGradient>
+            </defs>
+            <polygon points="28,78 172,78 182,62 148,36 80,34 18,62"
+              fill="url(#pBronze)" fill-opacity="0.15" stroke="#94a3b8" stroke-width="1.8"/>
+            <polygon points="80,34 144,34 130,56 90,56"
+              fill="#94a3b8" fill-opacity="0.3" stroke="#94a3b8" stroke-width="1.2"/>
+            <circle cx="62" cy="82" r="14" fill="none" stroke="#94a3b8" stroke-width="2"/>
+            <circle cx="138" cy="82" r="14" fill="none" stroke="#94a3b8" stroke-width="2"/>
+            <circle cx="62" cy="82" r="5" fill="#94a3b8"/>
+            <circle cx="138" cy="82" r="5" fill="#94a3b8"/>
+          </svg>
+        </div>
+        <div class="product-tier t-bronze">Bronze</div>
+        <h3>Third Party Cover</h3>
+        <p>Statutory minimum for low-risk profiles. AI-optimised pricing for young drivers and first-time policy holders entering the East African market.</p>
+        <ul class="prod-feats">
+          <li><span>✓</span> Third party liability</li>
+          <li><span>✓</span> AI risk assessment</li>
+          <li><span>✓</span> Digital certificate</li>
+        </ul>
+        <button class="btn-outline-prod" onclick="scrollTo('#quote')">Get Quote →</button>
+      </div>
+
+      <!-- Gold — Featured -->
+      <div class="product-card prod-featured">
+        <div class="prod-badge">Most Popular</div>
+        <div class="product-car-art">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="pGold2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffd700" stop-opacity="0.95"/>
+                <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.65"/>
+              </linearGradient>
+            </defs>
+            <polygon points="24,76 176,76 188,58 150,30 78,28 12,58"
+              fill="url(#pGold2)" fill-opacity="0.18" stroke="#ffd700" stroke-width="2"/>
+            <polygon points="78,28 146,28 130,52 88,52"
+              fill="#ffd700" fill-opacity="0.38" stroke="#ffd700" stroke-width="1.4"/>
+            <circle cx="58" cy="82" r="16" fill="none" stroke="#ffd700" stroke-width="2.5"/>
+            <circle cx="142" cy="82" r="16" fill="none" stroke="#ffd700" stroke-width="2.5"/>
+            <circle cx="58" cy="82" r="7" fill="#ffd700" fill-opacity="0.8"/>
+            <circle cx="142" cy="82" r="7" fill="#ffd700" fill-opacity="0.8"/>
+            <line x1="12" y1="66" x2="32" y2="66" stroke="#ffd700" stroke-width="1.2" opacity="0.55"/>
+            <line x1="6" y1="58" x2="26" y2="58" stroke="#ffd700" stroke-width="0.8" opacity="0.35"/>
+          </svg>
+        </div>
+        <div class="product-tier t-gold">Gold</div>
+        <h3>Comprehensive Plus</h3>
+        <p>Full protection with AI-driven premium personalisation. Most chosen by East Africa's growing urban professional and middle-class drivers.</p>
+        <ul class="prod-feats">
+          <li><span>✓</span> Comprehensive cover</li>
+          <li><span>✓</span> AI claims prediction</li>
+          <li><span>✓</span> 24/7 roadside assist</li>
+          <li><span>✓</span> CLV tier optimisation</li>
+        </ul>
+        <button class="btn-primary" onclick="scrollTo('#quote')">Get Quote →</button>
+      </div>
+
+      <!-- Platinum -->
+      <div class="product-card">
+        <div class="product-car-art">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="pPlat" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00e5a0" stop-opacity="0.92"/>
+                <stop offset="100%" stop-color="#00c8ff" stop-opacity="0.6"/>
+              </linearGradient>
+            </defs>
+            <polygon points="18,76 182,76 192,56 152,26 76,24 8,56"
+              fill="url(#pPlat)" fill-opacity="0.18" stroke="#00e5a0" stroke-width="2.2"/>
+            <polygon points="76,24 148,24 132,50 86,50"
+              fill="#00e5a0" fill-opacity="0.32" stroke="#00e5a0" stroke-width="1.4"/>
+            <circle cx="54" cy="82" r="17" fill="none" stroke="#00e5a0" stroke-width="2.8"/>
+            <circle cx="146" cy="82" r="17" fill="none" stroke="#00e5a0" stroke-width="2.8"/>
+            <circle cx="54" cy="82" r="8" fill="#00e5a0" fill-opacity="0.75"/>
+            <circle cx="146" cy="82" r="8" fill="#00e5a0" fill-opacity="0.75"/>
+            <!-- fleet count indicator -->
+            <text x="100" y="18" fill="#00e5a0" font-size="9" text-anchor="middle" opacity="0.7" font-family="monospace">✦ FLEET ✦</text>
+          </svg>
+        </div>
+        <div class="product-tier t-plat">Platinum</div>
+        <h3>Enterprise Fleet AI</h3>
+        <p>Full API access to Vondetta's AI stack. Built for insurers, brokers, and large commercial fleet operators requiring real-time portfolio intelligence.</p>
+        <ul class="prod-feats">
+          <li><span>✓</span> Full AI REST API</li>
+          <li><span>✓</span> Live analytics dashboard</li>
+          <li><span>✓</span> Custom model tuning</li>
+          <li><span>✓</span> Dedicated East Africa support</li>
+        </ul>
+        <button class="btn-outline-prod" onclick="scrollTo('#quote')">Contact Sales →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── EAST AFRICA COVERAGE ─────────────────────────────── -->
+<section class="section coverage-section" id="coverage">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-tag">Regional Presence</span>
+      <h2 class="section-h2">Rooted in <span class="glow-text">East Africa</span></h2>
+      <p class="section-p">Vondetta is headquartered in Nairobi, with operations across the most dynamic insurance markets on the continent.</p>
+    </div>
+
+    <div class="country-grid">
+      <div class="country-card cc-primary">
+        <div class="cc-flag">🇰🇪</div>
+        <h3>Kenya</h3>
+        <p>Primary market. Nairobi HQ. Region's deepest AI insurance deployment.</p>
+        <div class="cc-stat">35,000+ policies</div>
+        <div class="cc-bar"><div class="cc-fill" style="width:66%"></div></div>
+      </div>
+      <div class="country-card">
+        <div class="cc-flag">🇺🇬</div>
+        <h3>Uganda</h3>
+        <p>Kampala operations. Fast-growing boda-boda and urban fleet market.</p>
+        <div class="cc-stat">8,200+ policies</div>
+        <div class="cc-bar"><div class="cc-fill" style="width:15%"></div></div>
+      </div>
+      <div class="country-card">
+        <div class="cc-flag">🇹🇿</div>
+        <h3>Tanzania</h3>
+        <p>Dar es Salaam hub serving Southern East Africa's growing middle class.</p>
+        <div class="cc-stat">6,500+ policies</div>
+        <div class="cc-bar"><div class="cc-fill" style="width:12%"></div></div>
+      </div>
+      <div class="country-card">
+        <div class="cc-flag">🇷🇼</div>
+        <h3>Rwanda</h3>
+        <p>Kigali — Africa's most digitally advanced, highest-growth market.</p>
+        <div class="cc-stat">2,800+ policies</div>
+        <div class="cc-bar"><div class="cc-fill" style="width:5%"></div></div>
+      </div>
+      <div class="country-card">
+        <div class="cc-flag">🇪🇹</div>
+        <h3>Ethiopia</h3>
+        <p>Addis Ababa — expanding presence in Africa's second-largest population.</p>
+        <div class="cc-stat">1,002+ policies</div>
+        <div class="cc-bar"><div class="cc-fill" style="width:2%"></div></div>
+      </div>
+    </div>
+
+    <!-- Channel insight -->
+    <div class="channel-row">
+      <div class="channel-card">
+        <span class="ch-icon">🧑‍💼</span>
+        <div>
+          <span class="ch-label">Agent Channel</span>
+          <span class="ch-val cyan-txt">€542 avg CLV · 53% of portfolio</span>
+        </div>
+        <div class="ch-badge gold-badge">+122% vs Broker</div>
+      </div>
+      <div class="channel-card">
+        <span class="ch-icon">🤝</span>
+        <div>
+          <span class="ch-label">Broker Channel</span>
+          <span class="ch-val">€244 avg CLV · 47% of portfolio</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ──────────────────────────────────────── -->
+<section class="section how-section">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-tag">Simple Process</span>
+      <h2 class="section-h2">AI Insurance in <span class="glow-text">3 Steps</span></h2>
+    </div>
+    <div class="steps-row">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-ico">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="6" width="32" height="36" rx="3" stroke="#00c8ff" stroke-width="2"/>
+            <line x1="16" y1="16" x2="32" y2="16" stroke="#00c8ff" stroke-width="2"/>
+            <line x1="16" y1="22" x2="32" y2="22" stroke="#00c8ff" stroke-width="2"/>
+            <line x1="16" y1="28" x2="26" y2="28" stroke="#00c8ff" stroke-width="2"/>
+          </svg>
+        </div>
+        <h3>Submit Details</h3>
+        <p>Enter your vehicle, driver history, and coverage needs in under 2 minutes via our AI-optimised form.</p>
+      </div>
+      <div class="step-connector">
+        <svg viewBox="0 0 60 20" fill="none"><path d="M0 10h50M42 4l8 6-8 6" stroke="#00c8ff" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4,4" opacity="0.5"/></svg>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-ico">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="16" stroke="#ffd700" stroke-width="2"/>
+            <path d="M16 24l5 5 11-11" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="38" cy="10" r="5" fill="#00c8ff" fill-opacity="0.25" stroke="#00c8ff" stroke-width="1.5"/>
+            <path d="M36 10l1.5 1.5L40 8" stroke="#00c8ff" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>AI Risk Assessment</h3>
+        <p>Three XGBoost models analyse your profile in real-time, calculating churn risk, claims probability, and CLV tier.</p>
+      </div>
+      <div class="step-connector">
+        <svg viewBox="0 0 60 20" fill="none"><path d="M0 10h50M42 4l8 6-8 6" stroke="#00c8ff" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4,4" opacity="0.5"/></svg>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-ico">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 24l8 8 16-16" stroke="#00e5a0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 38h32M8 10h32" stroke="#00e5a0" stroke-width="1.5" stroke-dasharray="3,3"/>
+          </svg>
+        </div>
+        <h3>Instant Coverage</h3>
+        <p>Receive a personalised quote, digital certificate, and instant onboarding. No paperwork. No delays. No nonsense.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── QUOTE CALCULATOR ─────────────────────────────────── -->
+<section class="section quote-section" id="quote">
+  <div class="section-inner">
+    <div class="quote-layout">
+      <div class="quote-copy">
+        <span class="section-tag">AI Quote Engine</span>
+        <h2 class="section-h2">Your Personalised<br><span class="glow-text">AI-Powered Quote</span></h2>
+        <p class="section-p">Real-time risk scoring powered by the same models protecting 53,000+ drivers across East Africa.</p>
+
+        <div class="quote-trust-items">
+          <div class="qt-item"><span>⚡</span> Results in under 3 seconds</div>
+          <div class="qt-item"><span>🔒</span> Bank-grade data security</div>
+          <div class="qt-item"><span>🤖</span> 3 AI models working in parallel</div>
+          <div class="qt-item"><span>🌍</span> East Africa–calibrated data</div>
+        </div>
+
+        <!-- Mini donut: Valley of Death insight -->
+        <div class="insight-card">
+          <div class="insight-icon">⚠️</div>
+          <div>
+            <strong>Valley of Death</strong>
+            <p>Years 1–3 show a 26.5% churn spike. Vondetta flags these customers automatically for proactive retention.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quote-form-wrap">
+        <!-- Step indicator -->
+        <div class="form-step-bar">
+          <div class="fsb-item active" id="fsb1">
+            <span class="fsb-dot"></span><span>Vehicle</span>
+          </div>
+          <div class="fsb-line"></div>
+          <div class="fsb-item" id="fsb2">
+            <span class="fsb-dot"></span><span>Driver</span>
+          </div>
+          <div class="fsb-line"></div>
+          <div class="fsb-item" id="fsb3">
+            <span class="fsb-dot"></span><span>Result</span>
+          </div>
+        </div>
+
+        <!-- STEP 1 -->
+        <div class="form-panel active" id="qStep1">
+          <h3>Vehicle & Policy</h3>
+          <div class="form-row-2">
+            <div class="field-group">
+              <label>Vehicle Value (KES)</label>
+              <input type="number" id="q_vehicleValue" placeholder="e.g. 1,500,000" min="0" step="50000"/>
+            </div>
+            <div class="field-group">
+              <label>Annual Premium (KES)</label>
+              <input type="number" id="q_premium" placeholder="e.g. 45,000" min="0" step="1000"/>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="field-group">
+              <label>Coverage Type</label>
+              <select id="q_coverage">
+                <option value="comprehensive">Comprehensive</option>
+                <option value="third_party">Third Party</option>
+                <option value="fire_theft">Fire &amp; Theft</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>Country</label>
+              <select id="q_country">
+                <option value="ke">🇰🇪 Kenya</option>
+                <option value="ug">🇺🇬 Uganda</option>
+                <option value="tz">🇹🇿 Tanzania</option>
+                <option value="rw">🇷🇼 Rwanda</option>
+                <option value="et">🇪🇹 Ethiopia</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Acquisition Channel</label>
+            <div class="radio-row">
+              <label class="radio-opt">
+                <input type="radio" name="q_channel" value="agent" checked/>
+                <span class="rbox">Agent</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="q_channel" value="broker"/>
+                <span class="rbox">Broker</span>
+              </label>
+              <label class="radio-opt">
+                <input type="radio" name="q_channel" value="direct"/>
+                <span class="rbox">Direct</span>
+              </label>
+            </div>
+          </div>
+          <button class="btn-primary btn-full" onclick="qNext(2)">Continue to Driver Info →</button>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="form-panel" id="qStep2">
+          <h3>Driver Profile</h3>
+          <div class="form-row-2">
+            <div class="field-group">
+              <label>Driver Age</label>
+              <input type="number" id="q_driverAge" placeholder="e.g. 35" min="18" max="80"/>
+            </div>
+            <div class="field-group">
+              <label>Policy Tenure (years)</label>
+              <input type="number" id="q_tenure" placeholder="e.g. 3" min="0" max="25"/>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="field-group">
+              <label>Total Past Claims</label>
+              <input type="number" id="q_pastClaims" placeholder="e.g. 2" min="0" max="50"/>
+            </div>
+            <div class="field-group">
+              <label>Claims This Year</label>
+              <input type="number" id="q_recentClaims" placeholder="e.g. 0" min="0" max="10"/>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Total Claims Amount History (KES)</label>
+            <input type="number" id="q_claimAmt" placeholder="e.g. 120,000" min="0" step="5000"/>
+          </div>
+          <div class="form-row-btns">
+            <button class="btn-ghost" onclick="qPrev(1)">← Back</button>
+            <button class="btn-primary" id="calcBtn" onclick="runQuote()">Calculate My Quote →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3 — Results -->
+        <div class="form-panel" id="qStep3">
+          <div id="quoteResult"></div>
+          <div class="form-row-btns" style="margin-top:1.5rem">
+            <button class="btn-ghost" onclick="qPrev(2)">← Recalculate</button>
+            <button class="btn-primary" onclick="applyNow()">Apply Now →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DASHBOARD PREVIEW ────────────────────────────────── -->
+<section class="section dash-section">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-tag">Analytics Platform</span>
+      <h2 class="section-h2">Real-Time <span class="glow-text">Portfolio Intelligence</span></h2>
+      <p class="section-p">Insurers and fleet managers access Vondetta's full analytics suite — live risk monitoring, CLV dashboards, and RAG-powered natural language queries.</p>
+    </div>
+
+    <div class="dash-mockup">
+      <div class="dm-titlebar">
+        <div class="dm-btns">
+          <span class="dmb dmb-r"></span>
+          <span class="dmb dmb-y"></span>
+          <span class="dmb dmb-g"></span>
+        </div>
+        <span class="dm-url">vondetta.ai/dashboard — Executive Overview</span>
+      </div>
+      <div class="dm-body">
+        <div class="dm-sidebar">
+          <div class="dms-item active">📊 Executive Overview</div>
+          <div class="dms-item">⚠️ Risk Analytics</div>
+          <div class="dms-item">💎 Value Intelligence</div>
+          <div class="dms-item">🧠 Strategic Insights</div>
+          <div class="dms-item">🔍 Portfolio Query</div>
+        </div>
+        <div class="dm-main-area">
+          <!-- KPI cards -->
+          <div class="dm-kpis">
+            <div class="dm-kpi">
+              <span class="dkv cyan-txt">53,502</span>
+              <span class="dkl">Total Customers</span>
+            </div>
+            <div class="dm-kpi">
+              <span class="dkv red-txt">8,976</span>
+              <span class="dkl">Critical Risk</span>
+            </div>
+            <div class="dm-kpi">
+              <span class="dkv gold-txt">€25.8M</span>
+              <span class="dkl">Portfolio CLV</span>
+            </div>
+            <div class="dm-kpi">
+              <span class="dkv orange-txt">14%</span>
+              <span class="dkl">Underpriced Policies</span>
+            </div>
+            <div class="dm-kpi">
+              <span class="dkv green-txt">€42.1M</span>
+              <span class="dkl">Value at Risk</span>
+            </div>
+          </div>
+          <!-- Mini charts -->
+          <div class="dm-charts-row">
+            <div class="dm-chart-card">
+              <div class="dcc-title">Risk Distribution</div>
+              <div class="risk-bars">
+                <div class="rb-row">
+                  <span>Low</span>
+                  <div class="rb-track"><div class="rb-fill green-fill" style="width:45%">45%</div></div>
+                </div>
+                <div class="rb-row">
+                  <span>Med</span>
+                  <div class="rb-track"><div class="rb-fill gold-fill-b" style="width:30%">30%</div></div>
+                </div>
+                <div class="rb-row">
+                  <span>High</span>
+                  <div class="rb-track"><div class="rb-fill orange-fill" style="width:17%">17%</div></div>
+                </div>
+                <div class="rb-row">
+                  <span>Crit</span>
+                  <div class="rb-track"><div class="rb-fill red-fill" style="width:8%">8%</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="dm-chart-card">
+              <div class="dcc-title">Model Performance</div>
+              <div class="model-scores">
+                <div class="ms-row">
+                  <span>Churn</span>
+                  <div class="ms-bar"><div style="width:89.26%;background:#00c8ff;height:100%;border-radius:2px"></div></div>
+                  <span class="ms-val cyan-txt">89.26%</span>
+                </div>
+                <div class="ms-row">
+                  <span>Claims Freq</span>
+                  <div class="ms-bar"><div style="width:92.25%;background:#ffd700;height:100%;border-radius:2px"></div></div>
+                  <span class="ms-val gold-txt">92.25%</span>
+                </div>
+                <div class="ms-row">
+                  <span>Severity R²</span>
+                  <div class="ms-bar"><div style="width:35.2%;background:#00e5a0;height:100%;border-radius:2px"></div></div>
+                  <span class="ms-val green-txt">35.2%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA BAND ──────────────────────────────────────────── -->
+<section class="cta-band">
+  <div class="cta-inner">
+    <div class="cta-copy">
+      <h2>Ready to Protect Your Drive with AI?</h2>
+      <p>Join 53,000+ East African drivers already covered by Vondetta's intelligent insurance platform.</p>
+    </div>
+    <div class="cta-actions">
+      <button class="btn-primary btn-lg" onclick="scrollTo('#quote')">Get My Free Quote →</button>
+      <button class="btn-ghost btn-lg" onclick="scrollTo('#platform')">Explore the AI</button>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="nav-logo" style="margin-bottom:1rem">
+          <svg class="logo-hex" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" stroke="#00c8ff" stroke-width="1.8" fill="none"/>
+            <circle cx="16" cy="16" r="3" fill="#00c8ff"/>
+          </svg>
+          <span class="logo-name">VONDETTA</span>
+          <span class="logo-tag">AI Systems</span>
+        </div>
+        <p>Africa's most advanced AI-powered motor insurance platform. Built for the people, terrain, and speed of East Africa.</p>
+        <div class="footer-flags">🇰🇪 🇺🇬 🇹🇿 🇷🇼 🇪🇹</div>
+      </div>
+
+      <div class="footer-links-grid">
+        <div class="fl-col">
+          <h4>Platform</h4>
+          <a href="#platform">AI Models</a>
+          <a href="#segmentation">CLV Analytics</a>
+          <a href="#">API Access</a>
+          <a href="#">Broker Portal</a>
+        </div>
+        <div class="fl-col">
+          <h4>Products</h4>
+          <a href="#">Third Party</a>
+          <a href="#">Comprehensive</a>
+          <a href="#">Fleet Enterprise</a>
+          <a href="#quote">Get a Quote</a>
+        </div>
+        <div class="fl-col">
+          <h4>Company</h4>
+          <a href="#">About Vondetta</a>
+          <a href="#">Research &amp; Models</a>
+          <a href="#">Careers</a>
+          <a href="#">Contact Us</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Vondetta AI Systems Ltd. All rights reserved.</p>
+      <div class="fb-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">API Docs</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
